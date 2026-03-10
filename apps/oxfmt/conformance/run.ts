@@ -89,7 +89,10 @@ const categories: Category[] = [
       { dir: join(EDGE_CASES_DIR, "html-in-js") },
     ],
     optionSets: [{ printWidth: 80 }, { printWidth: 100, htmlWhitespaceSensitivity: "ignore" }],
-    notes: {},
+    notes: {
+      "issue-10691.js":
+        "js-in-html(`<script>`)-in-js needs lot more work; Please see oxc_formatter/src/print/template/embed/html.rs",
+    },
   },
   {
     name: "xxx-in-js-comment",

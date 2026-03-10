@@ -60,7 +60,7 @@
 
 ## html-in-js
 
-### Option 1: 1/4 (25.00%)
+### Option 1: 6/7 (85.71%)
 
 ```json
 {"printWidth":80}
@@ -68,11 +68,9 @@
 
 | File | Note |
 | :--- | :--- |
-| [html-template-literals.js](diffs/html-in-js/html-template-literals.js.md) |  |
-| [issue-10691.js](diffs/html-in-js/issue-10691.js.md) |  |
-| [lit-html.js](diffs/html-in-js/lit-html.js.md) |  |
+| [issue-10691.js](diffs/html-in-js/issue-10691.js.md) | js-in-html(`<script>`)-in-js needs lot more work; Please see oxc_formatter/src/print/template/embed/html.rs |
 
-### Option 2: 1/4 (25.00%)
+### Option 2: 6/7 (85.71%)
 
 ```json
 {"printWidth":100,"htmlWhitespaceSensitivity":"ignore"}
@@ -80,18 +78,12 @@
 
 | File | Note |
 | :--- | :--- |
-| [html-template-literals.js](diffs/html-in-js/html-template-literals.js.md) |  |
-| [issue-10691.js](diffs/html-in-js/issue-10691.js.md) |  |
-| [lit-html.js](diffs/html-in-js/lit-html.js.md) |  |
+| [issue-10691.js](diffs/html-in-js/issue-10691.js.md) | js-in-html(`<script>`)-in-js needs lot more work; Please see oxc_formatter/src/print/template/embed/html.rs |
 
 ## xxx-in-js-comment
 
-### Option 1: 4/5 (80.00%)
+### Option 1: 5/5 (100.00%)
 
 ```json
 {"printWidth":80}
 ```
-
-| File | Note |
-| :--- | :--- |
-| [comment-inside.js](diffs/xxx-in-js-comment/comment-inside.js.md) |  |
