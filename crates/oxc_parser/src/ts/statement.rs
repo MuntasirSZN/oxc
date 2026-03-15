@@ -71,11 +71,19 @@ impl<'a, C: Config> ParserImpl<'a, C> {
         match self.cur_kind() {
             Kind::Str => {
                 let literal = self.parse_literal_string();
+                // need to record stats manually, since we are not using the method from `AstBuilder` currently
+                self.ast.stats().record(0u32, 0u32, 1u32, 0u32);
                 TSEnumMemberName::String(self.alloc(literal))
             }
             Kind::LBrack => match self.parse_computed_property_name() {
-                Expression::StringLiteral(literal) => TSEnumMemberName::ComputedString(literal),
+                Expression::StringLiteral(literal) => {
+                    // need to record stats manually, since we are not using the method from `AstBuilder` currently
+                    self.ast.stats().record(0u32, 0u32, 1u32, 0u32);
+                    TSEnumMemberName::ComputedString(literal)
+                }
                 Expression::TemplateLiteral(template) if template.is_no_substitution_template() => {
+                    // need to record stats manually, since we are not using the method from `AstBuilder` currently
+                    self.ast.stats().record(0u32, 0u32, 1u32, 0u32);
                     TSEnumMemberName::ComputedTemplateString(template)
                 }
                 Expression::NumericLiteral(literal) => {
@@ -101,6 +109,8 @@ impl<'a, C: Config> ParserImpl<'a, C> {
             }
             _ => {
                 let ident_name = self.parse_identifier_name();
+                // need to record stats manually, since we are not using the method from `AstBuilder` currently
+                self.ast.stats().record(0u32, 0u32, 1u32, 0u32);
                 TSEnumMemberName::Identifier(self.alloc(ident_name))
             }
         }

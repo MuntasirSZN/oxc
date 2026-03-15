@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, cell::Cell};
 
 use oxc_allocator::{Allocator, AllocatorAccessor, Box, FromIn, IntoIn, Vec};
 use oxc_span::{Atom, Ident, SPAN, Span};
@@ -26,22 +26,108 @@ impl<'a> AllocatorAccessor<'a> for AstBuilder<'a> {
     }
 }
 
+/// Approximate count of nodes, references, symbols, and scopes created by a [`AstBuilder`].
+///
+/// **You should not rely on these counts being exact.**
+///
+/// The counts are approximate because they are incremented every time a node is created that
+/// _may_ add a reference, symbol, or a scope. The node count should be close to accurate,
+/// but the references, symbols, and scopes counts may be significantly higher than the actual counts,
+/// as correctly resolving the actual counts requires a full traversal of the AST, taking the
+/// context and semantics into account. Each count is essentially an upper bound on the actual count.
+///
+/// These counts are primarily useful for pre-allocating enough memory to store all of the nodes,
+/// references, symbols, and scopes in the arena, to avoid unnecessary reallocations and copying
+/// during semantic analysis.
+#[derive(Debug, Default)]
+pub struct AstBuilderStats {
+    /// Count of AST nodes created.
+    nodes: Cell<u32>,
+    /// Approximate count of AST nodes that produce references.
+    references: Cell<u32>,
+    /// Approximate count of AST nodes that produce symbols.
+    symbols: Cell<u32>,
+    /// Approximate count of AST nodes that produce scopes.
+    scopes: Cell<u32>,
+}
+
+impl AstBuilderStats {
+    /// Create a new zeroed stats container.
+    #[inline]
+    pub const fn new() -> Self {
+        Self {
+            nodes: Cell::new(0),
+            references: Cell::new(0),
+            symbols: Cell::new(0),
+            scopes: Cell::new(0),
+        }
+    }
+
+    /// Increments the nodes, references, symbols, and scopes counts by the given amounts.
+    #[inline]
+    pub fn record(&self, nodes: u32, references: u32, symbols: u32, scopes: u32) {
+        self.nodes.set(self.nodes.get().saturating_add(nodes));
+        self.references.set(self.references.get().saturating_add(references));
+        self.symbols.set(self.symbols.get().saturating_add(symbols));
+        self.scopes.set(self.scopes.get().saturating_add(scopes));
+    }
+
+    /// Record creation of a single AST node that doesn't produce any references, symbols, or scopes.
+    #[inline]
+    pub fn record_node(&self) {
+        self.record(1, 0, 0, 0);
+    }
+
+    /// Returns the approximate count of AST nodes created.
+    #[inline]
+    pub fn nodes(&self) -> u32 {
+        self.nodes.get()
+    }
+
+    /// Returns the approximate count of references created.
+    #[inline]
+    pub fn references(&self) -> u32 {
+        self.references.get()
+    }
+
+    /// Returns the approximate count of symbols created.
+    #[inline]
+    pub fn symbols(&self) -> u32 {
+        self.symbols.get()
+    }
+
+    /// Returns the approximate count of scopes created.
+    #[inline]
+    pub fn scopes(&self) -> u32 {
+        self.scopes.get()
+    }
+}
+
 /// AST builder for creating AST nodes.
 #[derive(Clone, Copy)]
 pub struct AstBuilder<'a> {
     /// The memory allocator used to allocate AST nodes in the arena.
     pub allocator: &'a Allocator,
+    /// Approximate counts of nodes, references, symbols, and scopes created by this builder.
+    stats: &'a AstBuilderStats,
 }
 
 impl<'a> AstBuilder<'a> {
     /// Create a new AST builder that will allocate nodes in the given allocator.
     #[inline]
     pub fn new(allocator: &'a Allocator) -> Self {
-        Self { allocator }
+        let stats: &'a AstBuilderStats = allocator.alloc(AstBuilderStats::new());
+        Self { allocator, stats }
+    }
+
+    /// Return AST builder stats.
+    #[inline]
+    pub fn stats(self) -> &'a AstBuilderStats {
+        self.stats
     }
 
     /// Create [`CommentNodeId`] for an AST node.
-    #[expect(dead_code, clippy::unused_self, clippy::trivially_copy_pass_by_ref)]
+    #[expect(dead_code, clippy::unused_self)]
     pub(crate) fn get_comment_node_id(&self) -> CommentNodeId {
         // TODO: Generate a real ID
         CommentNodeId::DUMMY
