@@ -276,12 +276,8 @@ impl<'a> TypeScriptEnum {
                     None => {
                         prev_constant_number = None;
 
-                        IdentifierReferenceRename::new(
-                            param_binding.name,
-                            enum_scope_id,
-                            ctx,
-                        )
-                        .visit_expression(&mut initializer);
+                        IdentifierReferenceRename::new(param_binding.name, enum_scope_id, ctx)
+                            .visit_expression(&mut initializer);
 
                         initializer
                     }
@@ -401,8 +397,7 @@ impl<'a> TypeScriptEnum {
         let var_decl = ast.declaration_variable(span, kind, decls, false);
 
         if let Some(export_span) = export_span {
-            let declaration =
-                ast.plain_export_named_declaration_declaration(export_span, var_decl);
+            let declaration = ast.plain_export_named_declaration_declaration(export_span, var_decl);
             Statement::ExportNamedDeclaration(declaration)
         } else {
             Statement::from(var_decl)
@@ -456,11 +451,7 @@ struct IdentifierReferenceRename<'a, 'ctx> {
 }
 
 impl<'a, 'ctx> IdentifierReferenceRename<'a, 'ctx> {
-    fn new(
-        enum_name: Ident<'a>,
-        enum_scope_id: ScopeId,
-        ctx: &'ctx TraverseCtx<'a>,
-    ) -> Self {
+    fn new(enum_name: Ident<'a>, enum_scope_id: ScopeId, ctx: &'ctx TraverseCtx<'a>) -> Self {
         IdentifierReferenceRename {
             enum_name,
             enum_scope_id,

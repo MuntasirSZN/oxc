@@ -42,10 +42,7 @@ fn explicit_numeric() {
 #[test]
 fn string_members() {
     let source = r#"enum A { X = "hello" }"#;
-    assert_eq!(
-        get_enum_member_value(source, "X"),
-        Some(ConstantValue::String("hello".into()))
-    );
+    assert_eq!(get_enum_member_value(source, "X"), Some(ConstantValue::String("hello".into())));
 }
 
 #[test]
@@ -72,10 +69,7 @@ fn cross_member_reference() {
 #[test]
 fn infinity_nan() {
     let source = "enum A { X = Infinity, Y = NaN }";
-    assert_eq!(
-        get_enum_member_value(source, "X"),
-        Some(ConstantValue::Number(f64::INFINITY))
-    );
+    assert_eq!(get_enum_member_value(source, "X"), Some(ConstantValue::Number(f64::INFINITY)));
     match get_enum_member_value(source, "Y") {
         Some(ConstantValue::Number(n)) => assert!(n.is_nan(), "Expected NaN, got {n}"),
         other => panic!("Expected Some(Number(NaN)), got {other:?}"),
@@ -85,10 +79,7 @@ fn infinity_nan() {
 #[test]
 fn string_concat() {
     let source = r#"enum A { X = "a" + "b" }"#;
-    assert_eq!(
-        get_enum_member_value(source, "X"),
-        Some(ConstantValue::String("ab".into()))
-    );
+    assert_eq!(get_enum_member_value(source, "X"), Some(ConstantValue::String("ab".into())));
 }
 
 #[test]
@@ -113,10 +104,7 @@ fn declare_enum() {
 #[test]
 fn auto_increment_after_string_fails() {
     let source = r#"enum A { X = "hello", Y }"#;
-    assert_eq!(
-        get_enum_member_value(source, "X"),
-        Some(ConstantValue::String("hello".into()))
-    );
+    assert_eq!(get_enum_member_value(source, "X"), Some(ConstantValue::String("hello".into())));
     assert_eq!(get_enum_member_value(source, "Y"), None);
 }
 
@@ -129,10 +117,7 @@ fn parenthesized_expression() {
 #[test]
 fn template_literal() {
     let source = "enum A { X = `hello` }";
-    assert_eq!(
-        get_enum_member_value(source, "X"),
-        Some(ConstantValue::String("hello".into()))
-    );
+    assert_eq!(get_enum_member_value(source, "X"), Some(ConstantValue::String("hello".into())));
 }
 
 #[test]

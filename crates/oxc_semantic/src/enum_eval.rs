@@ -78,8 +78,7 @@ fn evaluate_expression(
             } else {
                 let mut value = String::new();
                 for (i, quasi) in lit.quasis.iter().enumerate() {
-                    let cooked_or_raw =
-                        quasi.value.cooked.as_ref().unwrap_or(&quasi.value.raw);
+                    let cooked_or_raw = quasi.value.cooked.as_ref().unwrap_or(&quasi.value.raw);
                     value.push_str(cooked_or_raw.as_str());
                     if i < lit.expressions.len() {
                         match evaluate_expression(&lit.expressions[i], scope_id, scoping)? {
@@ -144,8 +143,7 @@ fn eval_binary_expression(
 
     // String concatenation when `+` is used and either operand is a string.
     if matches!(expr.operator, BinaryOperator::Addition)
-        && (matches!(left, ConstantValue::String(_))
-            || matches!(right, ConstantValue::String(_)))
+        && (matches!(left, ConstantValue::String(_)) || matches!(right, ConstantValue::String(_)))
     {
         let left_string = match &left {
             ConstantValue::String(s) => s.to_string(),
@@ -223,9 +221,7 @@ fn eval_unary_expression(
     match expr.operator {
         UnaryOperator::UnaryPlus => Some(ConstantValue::Number(value)),
         UnaryOperator::UnaryNegation => Some(ConstantValue::Number(-value)),
-        UnaryOperator::BitwiseNot => {
-            Some(ConstantValue::Number(f64::from(!value.to_int_32())))
-        }
+        UnaryOperator::BitwiseNot => Some(ConstantValue::Number(f64::from(!value.to_int_32()))),
         _ => None,
     }
 }
