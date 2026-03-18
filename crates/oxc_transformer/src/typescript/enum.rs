@@ -4,7 +4,7 @@ use oxc_allocator::{TakeIn, Vec as ArenaVec};
 use oxc_ast::{NONE, ast::*};
 use oxc_ast_visit::{VisitMut, walk_mut};
 use oxc_data_structures::stack::NonEmptyStack;
-use oxc_semantic::{ScopeFlags, ScopeId};
+use oxc_semantic::{ScopeFlags, ScopeId, SymbolId};
 use oxc_span::{Ident, SPAN, Span};
 use oxc_syntax::{
     constant_value::ConstantValue,
@@ -14,14 +14,25 @@ use oxc_syntax::{
     symbol::SymbolFlags,
 };
 use oxc_traverse::{BoundIdentifier, Traverse};
+use rustc_hash::FxHashMap;
 
 use crate::{context::TraverseCtx, state::TransformState};
 
-pub struct TypeScriptEnum;
+pub struct TypeScriptEnum {
+    optimize_const_enums: bool,
+    emit_const_enum_placeholder: bool,
+    /// Mapping from const enum declaration SymbolId to the enum body ScopeId.
+    /// Used for inlining const enum member references.
+    const_enum_body_scopes: FxHashMap<SymbolId, ScopeId>,
+}
 
 impl TypeScriptEnum {
-    pub fn new() -> Self {
-        Self
+    pub fn new(optimize_const_enums: bool, emit_const_enum_placeholder: bool) -> Self {
+        Self {
+            optimize_const_enums,
+            emit_const_enum_placeholder,
+            const_enum_body_scopes: FxHashMap::default(),
+        }
     }
 }
 
@@ -29,12 +40,12 @@ impl<'a> Traverse<'a, TransformState<'a>> for TypeScriptEnum {
     fn enter_statement(&mut self, stmt: &mut Statement<'a>, ctx: &mut TraverseCtx<'a>) {
         let new_stmt = match stmt {
             Statement::TSEnumDeclaration(ts_enum_decl) => {
-                Self::transform_ts_enum(ts_enum_decl, None, ctx)
+                self.transform_ts_enum(ts_enum_decl, None, ctx)
             }
             Statement::ExportNamedDeclaration(decl) => {
                 let span = decl.span;
                 if let Some(Declaration::TSEnumDeclaration(ts_enum_decl)) = &mut decl.declaration {
-                    Self::transform_ts_enum(ts_enum_decl, Some(span), ctx)
+                    self.transform_ts_enum(ts_enum_decl, Some(span), ctx)
                 } else {
                     None
                 }
@@ -44,6 +55,23 @@ impl<'a> Traverse<'a, TransformState<'a>> for TypeScriptEnum {
 
         if let Some(new_stmt) = new_stmt {
             *stmt = new_stmt;
+        }
+    }
+
+    fn enter_expression(&mut self, expr: &mut Expression<'a>, ctx: &mut TraverseCtx<'a>) {
+        if !self.optimize_const_enums || self.emit_const_enum_placeholder {
+            return;
+        }
+
+        if let Expression::StaticMemberExpression(member_expr) = expr
+            && let Some(value) = self.try_inline_const_enum_member(member_expr, ctx)
+        {
+            *expr = match value {
+                ConstantValue::Number(n) => Self::get_initializer_expr(n, ctx),
+                ConstantValue::String(s) => {
+                    ctx.ast.expression_string_literal(SPAN, ctx.ast.atom(&s), None)
+                }
+            };
         }
     }
 }
@@ -63,11 +91,28 @@ impl<'a> TypeScriptEnum {
     /// })(Foo || {});
     /// ```
     fn transform_ts_enum(
+        &mut self,
         decl: &mut TSEnumDeclaration<'a>,
         export_span: Option<Span>,
         ctx: &mut TraverseCtx<'a>,
     ) -> Option<Statement<'a>> {
         if decl.declare {
+            return None;
+        }
+
+        // Handle const enum optimization
+        if decl.r#const && self.optimize_const_enums {
+            // Store the mapping from enum symbol to body scope for reference inlining
+            let enum_symbol_id = decl.id.symbol_id();
+            let body_scope_id = decl.body.scope_id();
+            self.const_enum_body_scopes.insert(enum_symbol_id, body_scope_id);
+
+            if self.emit_const_enum_placeholder {
+                // Bundler mode: emit `var X = {}` placeholder
+                return Some(Self::emit_const_enum_as_placeholder(decl, export_span, ctx));
+            }
+            // Standalone mode: remove the declaration entirely
+            // (references are inlined by enter_expression)
             return None;
         }
 
@@ -337,6 +382,53 @@ impl<'a> TypeScriptEnum {
         } else {
             expr
         }
+    }
+
+    /// Emit a const enum declaration as `var X = {}` placeholder for bundler mode.
+    fn emit_const_enum_as_placeholder(
+        decl: &TSEnumDeclaration<'a>,
+        export_span: Option<Span>,
+        ctx: &TraverseCtx<'a>,
+    ) -> Statement<'a> {
+        let ast = ctx.ast;
+        let span = decl.span;
+        let kind = VariableDeclarationKind::Var;
+        let binding_identifier = decl.id.clone();
+        let binding = BindingPattern::BindingIdentifier(ctx.alloc(binding_identifier));
+        let init = ast.expression_object(SPAN, ast.vec());
+        let declarator = ast.variable_declarator(span, kind, binding, NONE, Some(init), false);
+        let decls = ast.vec1(declarator);
+        let var_decl = ast.declaration_variable(span, kind, decls, false);
+
+        if let Some(export_span) = export_span {
+            let declaration =
+                ast.plain_export_named_declaration_declaration(export_span, var_decl);
+            Statement::ExportNamedDeclaration(declaration)
+        } else {
+            Statement::from(var_decl)
+        }
+    }
+
+    /// Try to inline a const enum member access like `Direction.Up` to its literal value.
+    fn try_inline_const_enum_member(
+        &self,
+        expr: &StaticMemberExpression<'a>,
+        ctx: &TraverseCtx<'a>,
+    ) -> Option<ConstantValue> {
+        let Expression::Identifier(ident) = &expr.object else { return None };
+        let ref_id = ident.reference_id.get()?;
+        let symbol_id = ctx.scoping().get_reference(ref_id).symbol_id()?;
+
+        if !ctx.scoping().symbol_flags(symbol_id).is_const_enum() {
+            return None;
+        }
+
+        let body_scope_id = self.const_enum_body_scopes.get(&symbol_id)?;
+        let property_name = &expr.property.name;
+
+        let member_symbol_id =
+            ctx.scoping().get_binding(*body_scope_id, property_name.as_str().into())?;
+        ctx.scoping().get_enum_member_value(member_symbol_id).cloned()
     }
 }
 

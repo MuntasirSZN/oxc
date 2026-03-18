@@ -58,7 +58,10 @@ impl<'a> TypeScript<'a> {
     pub fn new(options: &TypeScriptOptions, state: &TransformState<'a>) -> Self {
         Self {
             annotations: TypeScriptAnnotations::new(options),
-            r#enum: TypeScriptEnum::new(),
+            r#enum: TypeScriptEnum::new(
+                options.optimize_const_enums,
+                options.emit_const_enum_placeholder,
+            ),
             namespace: TypeScriptNamespace::new(options),
             module: TypeScriptModule::new(options.only_remove_type_imports, state.module),
             rewrite_extensions: TypeScriptRewriteExtensions::new(options),
@@ -136,6 +139,7 @@ impl<'a> Traverse<'a, TransformState<'a>> for TypeScript<'a> {
     }
 
     fn enter_expression(&mut self, expr: &mut Expression<'a>, ctx: &mut TraverseCtx<'a>) {
+        self.r#enum.enter_expression(expr, ctx);
         self.annotations.enter_expression(expr, ctx);
     }
 
