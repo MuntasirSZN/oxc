@@ -7,6 +7,7 @@ use oxc_allocator::{Allocator, CloneIn, Vec as ArenaVec};
 use oxc_index::IndexVec;
 use oxc_span::{ArenaIdentHashMap, Ident, Span};
 use oxc_syntax::{
+    constant_value::ConstantValue,
     node::NodeId,
     reference::{Reference, ReferenceId},
     scope::{ScopeFlags, ScopeId},
@@ -94,6 +95,11 @@ pub struct Scoping {
     /// Function or Variable Symbol IDs that are marked with `@__NO_SIDE_EFFECTS__`.
     pub(crate) no_side_effects: FxHashSet<SymbolId>,
 
+    /// Computed constant values for enum members.
+    /// Keyed by the EnumMember's SymbolId, populated for ALL enums (const and regular).
+    /// Only contains entries for members whose values could be statically evaluated.
+    pub(crate) enum_member_values: FxHashMap<SymbolId, ConstantValue>,
+
     /* Scope Tree - single allocation for all scope-indexed flat fields */
     scope_table: ScopeTable,
 
@@ -112,6 +118,7 @@ impl Default for Scoping {
             symbol_table: SymbolTable::new(),
             references: IndexVec::new(),
             no_side_effects: FxHashSet::default(),
+            enum_member_values: FxHashMap::default(),
             scope_table: ScopeTable::new(),
             cell: ScopingCell::new(Allocator::default(), |allocator| ScopingInner {
                 symbol_names: ArenaVec::new_in(allocator),
@@ -589,6 +596,23 @@ impl Scoping {
     pub fn no_side_effects(&self) -> &FxHashSet<SymbolId> {
         &self.no_side_effects
     }
+
+    /// Get the computed constant value for an enum member symbol.
+    pub fn get_enum_member_value(&self, symbol_id: SymbolId) -> Option<&ConstantValue> {
+        self.enum_member_values.get(&symbol_id)
+    }
+
+    /// Set a computed constant value for an enum member symbol.
+    #[expect(dead_code)]
+    pub(crate) fn set_enum_member_value(&mut self, symbol_id: SymbolId, value: ConstantValue) {
+        self.enum_member_values.insert(symbol_id, value);
+    }
+
+    /// Take all enum member values out of this Scoping.
+    /// Used by rolldown to extract values before scoping is rebuilt.
+    pub fn take_enum_member_values(&mut self) -> FxHashMap<SymbolId, ConstantValue> {
+        std::mem::take(&mut self.enum_member_values)
+    }
 }
 
 /// Scope Tree Methods
@@ -918,6 +942,7 @@ impl Scoping {
             symbol_table: self.symbol_table.clone(),
             references: self.references.clone(),
             no_side_effects: self.no_side_effects.clone(),
+            enum_member_values: self.enum_member_values.clone(),
             scope_table: self.scope_table.clone(),
             cell: {
                 let allocator = Allocator::with_capacity(used_bytes);
