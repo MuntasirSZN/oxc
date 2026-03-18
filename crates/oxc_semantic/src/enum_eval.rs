@@ -100,7 +100,7 @@ fn evaluate_expression(
 
 fn evaluate_ref(
     expr: &Expression<'_>,
-    _scope_id: ScopeId,
+    scope_id: ScopeId,
     scoping: &Scoping,
 ) -> Option<ConstantValue> {
     match expr {
@@ -113,8 +113,19 @@ fn evaluate_ref(
             }
 
             // Try to resolve via the reference to an already-evaluated enum member.
-            let ref_id = ident.reference_id.get()?;
-            let symbol_id = scoping.get_reference(ref_id).symbol_id()?;
+            // First attempt: use the resolved reference (if the reference was already
+            // resolved by the time this evaluator runs).
+            if let Some(ref_id) = ident.reference_id.get()
+                && let Some(symbol_id) = scoping.get_reference(ref_id).symbol_id()
+            {
+                return scoping.get_enum_member_value(symbol_id).cloned();
+            }
+
+            // Fallback: look up the identifier name directly as a binding in the
+            // enum body scope. This handles cross-member references like
+            // `enum A { X = 1, Y = X + 1 }` where the reference to `X` may not
+            // yet be resolved during semantic analysis.
+            let symbol_id = scoping.get_binding(scope_id, ident.name.as_str().into())?;
             scoping.get_enum_member_value(symbol_id).cloned()
         }
         // MemberExpression (Enum.Member) cross-enum references are not yet supported.

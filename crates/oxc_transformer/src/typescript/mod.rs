@@ -43,7 +43,7 @@ use rewrite_extensions::TypeScriptRewriteExtensions;
 /// Out: `const x = 0;`
 pub struct TypeScript<'a> {
     annotations: TypeScriptAnnotations<'a>,
-    r#enum: TypeScriptEnum<'a>,
+    r#enum: TypeScriptEnum,
     namespace: TypeScriptNamespace,
     module: TypeScriptModule,
     rewrite_extensions: Option<TypeScriptRewriteExtensions>,
