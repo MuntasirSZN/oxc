@@ -603,7 +603,6 @@ impl Scoping {
     }
 
     /// Set a computed constant value for an enum member symbol.
-    #[expect(dead_code)]
     pub(crate) fn set_enum_member_value(&mut self, symbol_id: SymbolId, value: ConstantValue) {
         self.enum_member_values.insert(symbol_id, value);
     }
