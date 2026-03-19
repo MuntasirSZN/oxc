@@ -1,5 +1,5 @@
 use cow_utils::CowUtils;
-use oxc_allocator::{Box, TakeIn, Vec};
+use oxc_allocator::{Box, FromIn, TakeIn, Vec};
 use oxc_ast::ast::*;
 #[cfg(feature = "regular_expression")]
 use oxc_regular_expression::ast::Pattern;
@@ -544,7 +544,7 @@ impl<'a, C: Config> ParserImpl<'a, C> {
             }
         }
 
-        Wtf8Atom::from_in(&wtf8_buf, self.allocator)
+        Wtf8Atom::from_in(&*wtf8_buf, self.ast.allocator)
     }
 
     pub(crate) fn parse_literal_string(&mut self) -> StringLiteral<'a> {
@@ -722,6 +722,7 @@ impl<'a, C: Config> ParserImpl<'a, C> {
             span,
             TemplateElementValue { raw, cooked },
             tail,
+            false,
         )
     }
 

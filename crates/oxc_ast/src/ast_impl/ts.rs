@@ -6,7 +6,6 @@
 use std::fmt;
 
 use oxc_span::Atom;
-use oxc_wtf8::Wtf8Atom;
 
 use crate::ast::*;
 
