@@ -39,4 +39,5 @@ serialize = [
   "oxc_span/serialize",
   "oxc_syntax/serialize",
   "oxc_estree/serialize",
+  "oxc_wtf8/serialize",
 ]
