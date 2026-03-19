@@ -2493,6 +2493,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxc_wtf8"
+version = "0.120.0"
+dependencies = [
+ "oxc_allocator",
+ "oxc_data_structures",
+ "oxc_estree",
+ "oxc_str",
+ "serde",
+]
+
+[[package]]
 name = "oxfmt"
 version = "0.41.0"
 dependencies = [
