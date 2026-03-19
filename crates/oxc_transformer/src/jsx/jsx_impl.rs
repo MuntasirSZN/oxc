@@ -991,7 +991,8 @@ impl<'a> JsxImpl<'a> {
     }
 
     fn transform_jsx_text(text: &JSXText<'a>, ctx: &TraverseCtx<'a>) -> Option<Expression<'a>> {
-        Self::fixup_whitespace_and_decode_entities(text.value, ctx)
+        let value = text.value.try_into_atom().unwrap_or_else(|| ctx.ast.atom(""));
+        Self::fixup_whitespace_and_decode_entities(value, ctx)
             .map(|value| ctx.ast.expression_string_literal(text.span, value, None))
     }
 

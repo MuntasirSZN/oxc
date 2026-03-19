@@ -2616,7 +2616,7 @@ impl Gen for JSXClosingFragment {
 impl Gen for JSXText<'_> {
     fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
         p.add_source_mapping(self.span);
-        p.print_str(self.value.as_str());
+        p.print_str(self.value.as_str().unwrap_or(""));
     }
 }
 

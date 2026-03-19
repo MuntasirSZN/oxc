@@ -330,7 +330,7 @@ impl LabelHasAssociatedControl {
 
         match node {
             JSXChild::ExpressionContainer(_) => true,
-            JSXChild::Text(text) => !text.value.as_str().trim().is_empty(),
+            JSXChild::Text(text) => !text.value.as_str().unwrap_or("").trim().is_empty(),
             JSXChild::Element(element) => {
                 let has_labelling_prop =
                     element.opening_element.attributes.iter().any(|attr| match attr {

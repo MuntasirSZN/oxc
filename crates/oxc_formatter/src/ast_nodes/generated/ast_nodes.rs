@@ -7,6 +7,7 @@ use oxc_allocator::Vec;
 use oxc_ast::ast::*;
 use oxc_span::{GetSpan, Ident};
 use oxc_syntax::node::NodeId;
+use oxc_wtf8::Wtf8Atom;
 
 use crate::ast_nodes::AstNode;
 use crate::formatter::{
@@ -7163,7 +7164,7 @@ impl<'a> AstNode<'a, JSXText<'a>> {
     }
 
     #[inline]
-    pub fn value(&self) -> Atom<'a> {
+    pub fn value(&self) -> Wtf8Atom<'a> {
         self.inner.value
     }
 

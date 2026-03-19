@@ -9668,7 +9668,7 @@ impl<'a> AstBuilder<'a> {
     #[inline]
     pub fn jsx_child_text<A1>(self, span: Span, value: A1, raw: Option<Atom<'a>>) -> JSXChild<'a>
     where
-        A1: Into<Atom<'a>>,
+        A1: Into<Wtf8Atom<'a>>,
     {
         JSXChild::Text(self.alloc_jsx_text(span, value, raw))
     }
@@ -9792,7 +9792,7 @@ impl<'a> AstBuilder<'a> {
     #[inline]
     pub fn jsx_text<A1>(self, span: Span, value: A1, raw: Option<Atom<'a>>) -> JSXText<'a>
     where
-        A1: Into<Atom<'a>>,
+        A1: Into<Wtf8Atom<'a>>,
     {
         JSXText { node_id: Cell::new(NodeId::DUMMY), span, value: value.into(), raw }
     }
@@ -9814,7 +9814,7 @@ impl<'a> AstBuilder<'a> {
         raw: Option<Atom<'a>>,
     ) -> Box<'a, JSXText<'a>>
     where
-        A1: Into<Atom<'a>>,
+        A1: Into<Wtf8Atom<'a>>,
     {
         Box::new_in(self.jsx_text(span, value, raw), self.allocator)
     }

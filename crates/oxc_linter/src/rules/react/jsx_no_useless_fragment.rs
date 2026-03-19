@@ -272,7 +272,7 @@ fn can_fix(node: &AstNode, children: &ArenaVec<JSXChild<'_>>, ctx: &LintContext)
 
 fn is_whitespace_only_text(child: &JSXChild) -> bool {
     match child {
-        JSXChild::Text(text) => text.value.trim().is_empty(),
+        JSXChild::Text(text) => text.value.as_str().unwrap_or("").trim().is_empty(),
         _ => false,
     }
 }

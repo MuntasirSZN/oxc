@@ -401,7 +401,7 @@ impl JsxCurlyBracePresence {
                     self.check_expression_container(ctx, container, node, false);
                 }
                 JSXChild::Text(text) => {
-                    let text_value = text.value.as_str();
+                    let text_value = text.value.as_str().unwrap_or("");
                     if self.children.is_always()
                         && !contains_only_html_entities(text_value)
                         && !is_whitespace(text_value)

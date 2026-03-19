@@ -100,7 +100,7 @@ pub fn is_hidden_from_screen_reader<'a>(
 // ref: https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/v6.9.0/src/util/hasAccessibleChild.js
 pub fn object_has_accessible_child<'a>(ctx: &LintContext<'a>, node: &JSXElement<'a>) -> bool {
     node.children.iter().any(|child| match child {
-        JSXChild::Text(text) => !text.value.is_empty(),
+        JSXChild::Text(text) => !text.value.as_str().unwrap_or("").is_empty(),
         JSXChild::Element(el) => !is_hidden_from_screen_reader(ctx, &el.opening_element),
         JSXChild::ExpressionContainer(container) => {
             !matches!(&container.expression, JSXExpression::NullLiteral(_))

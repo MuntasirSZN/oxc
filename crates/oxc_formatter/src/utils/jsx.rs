@@ -274,7 +274,7 @@ pub fn jsx_split_children<'a, 'b>(
                 // Split the text into words
                 // Keep track if there's any leading/trailing empty line, new line or whitespace
 
-                let text_value = &text.value;
+                let text_value = text.value.as_str().unwrap_or("");
                 let mut chunks = JsxSplitChunksIterator::new(text_value).peekable();
 
                 // Text starting with a whitespace
