@@ -8,6 +8,7 @@ use oxc_syntax::{
     number::{BigintBase, NumberBase},
     precedence::Precedence,
 };
+use oxc_wtf8::{Wtf8, Wtf8Buf, Wtf8Atom};
 
 use super::{
     grammar::CoverGrammar,
@@ -472,6 +473,80 @@ impl<'a, C: Config> ParserImpl<'a, C> {
         }
     }
 
+    /// Convert a string with lone surrogate encoding to a WTF-8 atom.
+    /// 
+    /// The lexer encodes lone surrogates in the atom string using `\u{FFFD}XXXX` markers,
+    /// where XXXX is the 4-digit hex code unit of the lone surrogate. The marker `\u{FFFD}fffd`
+    /// represents an actual replacement character (not a lone surrogate).
+    /// 
+    /// This function decodes these markers back into proper WTF-8 byte sequences.
+    fn decode_lone_surrogates_to_wtf8_atom(&mut self, atom: Atom<'a>, has_lone_surrogates: bool) -> Wtf8Atom<'a> {
+        if !has_lone_surrogates {
+            // No lone surrogates, can convert directly
+            return Wtf8Atom::from(atom);
+        }
+
+        // Decode the lone surrogates
+        let mut wtf8_buf = Wtf8Buf::new();
+        let s = atom.as_str();
+        let mut chars = s.chars();
+        
+        while let Some(ch) = chars.next() {
+            if ch == '\u{FFFD}' {
+                // Check if this is a lone surrogate marker
+                let hex_chars: [char; 4] = {
+                    let mut chars_arr = ['\0'; 4];
+                    for (i, c) in chars.by_ref().take(4).enumerate() {
+                        chars_arr[i] = c;
+                    }
+                    chars_arr
+                };
+                
+                let hex_str = if hex_chars[3] == '\0' {
+                    // Not enough characters
+                    let partial: String = hex_chars.iter().take_while(|&&c| c != '\0').collect();
+                    wtf8_buf.push_char('\u{FFFD}');
+                    wtf8_buf.push_str(&partial);
+                    continue;
+                } else {
+                    hex_chars.iter().collect::<String>()
+                };
+                
+                if hex_str == "fffd" {
+                    // Actual replacement character, not a surrogate marker
+                    wtf8_buf.push_char('\u{FFFD}');
+                } else if let Ok(code_unit) = u16::from_str_radix(&hex_str, 16) {
+                    if (0xD800..=0xDFFF).contains(&code_unit) {
+                        // This is a lone surrogate, encode it as WTF-8
+                        // WTF-8 encodes surrogates as 3-byte sequences: ED A0-BF 80-BF
+                        // For code unit XXXX: [0xED, 0x80|(XXXX>>6)&0x3F, 0x80|(XXXX&0x3F)]
+                        let bytes = [
+                            0xED,
+                            0x80u8 | ((code_unit >> 6) & 0x3F) as u8,
+                            0x80u8 | (code_unit & 0x3F) as u8,
+                        ];
+                        // SAFETY: This produces valid WTF-8 encoding for lone surrogate code points.
+                        // The byte pattern above follows the WTF-8 spec for encoding surrogates.
+                        let wtf8_bytes = unsafe { Wtf8::from_bytes_unchecked(&bytes) };
+                        wtf8_buf.push_wtf8(wtf8_bytes);
+                    } else {
+                        // Not a surrogate, treat as normal characters
+                        wtf8_buf.push_char('\u{FFFD}');
+                        wtf8_buf.push_str(&hex_str);
+                    }
+                } else {
+                    // Invalid hex, treat as normal characters
+                    wtf8_buf.push_char('\u{FFFD}');
+                    wtf8_buf.push_str(&hex_str);
+                }
+            } else {
+                wtf8_buf.push_char(ch);
+            }
+        }
+
+        Wtf8Atom::from_in(&wtf8_buf, self.allocator)
+    }
+
     pub(crate) fn parse_literal_string(&mut self) -> StringLiteral<'a> {
         if !self.at(Kind::Str) {
             return self.unexpected();
@@ -481,7 +556,9 @@ impl<'a, C: Config> ParserImpl<'a, C> {
         let value = self.cur_string();
         let lone_surrogates = self.cur_token().lone_surrogates();
         self.bump_any();
-        self.ast.string_literal_with_lone_surrogates(span, value, Some(raw), lone_surrogates)
+        
+        let wtf8_value = self.decode_lone_surrogates_to_wtf8_atom(value, lone_surrogates);
+        self.ast.string_literal(span, wtf8_value, Some(raw))
     }
 
     /// Section [Array Expression](https://tc39.es/ecma262/#prod-ArrayLiteral)
@@ -618,13 +695,16 @@ impl<'a, C: Config> ParserImpl<'a, C> {
         // so we can skip searching for `\r` in common case where contains no escapes.
         let (cooked, lone_surrogates) = if self.cur_token().escaped() {
             // `cooked = None` when template literal has invalid escape sequence
-            let cooked = self.cur_template_string().map(Atom::from);
-            if cooked.is_some() && raw.contains('\r') {
+            let cooked_atom = self.cur_template_string();
+            let lone_surrogates = self.cur_token().lone_surrogates();
+            if cooked_atom.is_some() && raw.contains('\r') {
                 raw = self.ast.atom(&raw.cow_replace("\r\n", "\n").cow_replace('\r', "\n"));
             }
-            (cooked, self.cur_token().lone_surrogates())
+            let cooked = cooked_atom.map(|atom| self.decode_lone_surrogates_to_wtf8_atom(atom, lone_surrogates));
+            (cooked, lone_surrogates)
         } else {
-            (Some(raw), false)
+            let wtf8_value = self.decode_lone_surrogates_to_wtf8_atom(raw, false);
+            (Some(wtf8_value), false)
         };
 
         self.bump_any();
@@ -638,12 +718,10 @@ impl<'a, C: Config> ParserImpl<'a, C> {
         }
 
         let tail = matches!(cur_kind, Kind::TemplateTail | Kind::NoSubstitutionTemplate);
-        self.ast.template_element_with_lone_surrogates(
+        self.ast.template_element(
             span,
             TemplateElementValue { raw, cooked },
             tail,
-            lone_surrogates,
-            false, // escape_raw: parser provides already-escaped values from source
         )
     }
 

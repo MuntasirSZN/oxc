@@ -122,14 +122,13 @@ const _: () = {
     assert!(offset_of!(TaggedTemplateExpression, type_arguments) == 24);
     assert!(offset_of!(TaggedTemplateExpression, quasi) == 32);
 
-    // Padding: 2 bytes
+    // Padding: 3 bytes
     assert!(size_of::<TemplateElement>() == 48);
     assert!(align_of::<TemplateElement>() == 8);
     assert!(offset_of!(TemplateElement, node_id) == 40);
     assert!(offset_of!(TemplateElement, span) == 0);
     assert!(offset_of!(TemplateElement, value) == 8);
     assert!(offset_of!(TemplateElement, tail) == 44);
-    assert!(offset_of!(TemplateElement, lone_surrogates) == 45);
 
     // Padding: 0 bytes
     assert!(size_of::<TemplateElementValue>() == 32);
@@ -976,14 +975,13 @@ const _: () = {
     assert!(offset_of!(NumericLiteral, raw) == 16);
     assert!(offset_of!(NumericLiteral, base) == 36);
 
-    // Padding: 3 bytes
+    // Padding: 4 bytes
     assert!(size_of::<StringLiteral>() == 48);
     assert!(align_of::<StringLiteral>() == 8);
     assert!(offset_of!(StringLiteral, node_id) == 40);
     assert!(offset_of!(StringLiteral, span) == 0);
     assert!(offset_of!(StringLiteral, value) == 8);
     assert!(offset_of!(StringLiteral, raw) == 24);
-    assert!(offset_of!(StringLiteral, lone_surrogates) == 44);
 
     // Padding: 3 bytes
     assert!(size_of::<BigIntLiteral>() == 48);
@@ -1933,14 +1931,13 @@ const _: () = if cfg!(target_family = "wasm") || align_of::<u64>() == 8 {
     assert!(offset_of!(TaggedTemplateExpression, type_arguments) == 16);
     assert!(offset_of!(TaggedTemplateExpression, quasi) == 20);
 
-    // Padding: 2 bytes
+    // Padding: 3 bytes
     assert!(size_of::<TemplateElement>() == 32);
     assert!(align_of::<TemplateElement>() == 4);
     assert!(offset_of!(TemplateElement, node_id) == 24);
     assert!(offset_of!(TemplateElement, span) == 0);
     assert!(offset_of!(TemplateElement, value) == 8);
     assert!(offset_of!(TemplateElement, tail) == 28);
-    assert!(offset_of!(TemplateElement, lone_surrogates) == 29);
 
     // Padding: 0 bytes
     assert!(size_of::<TemplateElementValue>() == 16);
@@ -2182,12 +2179,12 @@ const _: () = if cfg!(target_family = "wasm") || align_of::<u64>() == 8 {
     assert!(align_of::<Statement>() == 4);
 
     // Padding: 0 bytes
-    assert!(size_of::<Directive>() == 52);
+    assert!(size_of::<Directive>() == 48);
     assert!(align_of::<Directive>() == 4);
-    assert!(offset_of!(Directive, node_id) == 48);
+    assert!(offset_of!(Directive, node_id) == 44);
     assert!(offset_of!(Directive, span) == 0);
     assert!(offset_of!(Directive, expression) == 8);
-    assert!(offset_of!(Directive, directive) == 40);
+    assert!(offset_of!(Directive, directive) == 36);
 
     // Padding: 0 bytes
     assert!(size_of::<Hashbang>() == 20);
@@ -2653,15 +2650,15 @@ const _: () = if cfg!(target_family = "wasm") || align_of::<u64>() == 8 {
     assert!(offset_of!(ImportExpression, phase) == 28);
 
     // Padding: 2 bytes
-    assert!(size_of::<ImportDeclaration>() == 68);
+    assert!(size_of::<ImportDeclaration>() == 64);
     assert!(align_of::<ImportDeclaration>() == 4);
-    assert!(offset_of!(ImportDeclaration, node_id) == 60);
+    assert!(offset_of!(ImportDeclaration, node_id) == 56);
     assert!(offset_of!(ImportDeclaration, span) == 0);
     assert!(offset_of!(ImportDeclaration, specifiers) == 8);
     assert!(offset_of!(ImportDeclaration, source) == 24);
-    assert!(offset_of!(ImportDeclaration, phase) == 64);
-    assert!(offset_of!(ImportDeclaration, with_clause) == 56);
-    assert!(offset_of!(ImportDeclaration, import_kind) == 65);
+    assert!(offset_of!(ImportDeclaration, phase) == 60);
+    assert!(offset_of!(ImportDeclaration, with_clause) == 52);
+    assert!(offset_of!(ImportDeclaration, import_kind) == 61);
 
     assert!(size_of::<ImportPhase>() == 1);
     assert!(align_of::<ImportPhase>() == 1);
@@ -2670,13 +2667,13 @@ const _: () = if cfg!(target_family = "wasm") || align_of::<u64>() == 8 {
     assert!(align_of::<ImportDeclarationSpecifier>() == 4);
 
     // Padding: 3 bytes
-    assert!(size_of::<ImportSpecifier>() == 80);
+    assert!(size_of::<ImportSpecifier>() == 76);
     assert!(align_of::<ImportSpecifier>() == 4);
-    assert!(offset_of!(ImportSpecifier, node_id) == 72);
+    assert!(offset_of!(ImportSpecifier, node_id) == 68);
     assert!(offset_of!(ImportSpecifier, span) == 0);
     assert!(offset_of!(ImportSpecifier, imported) == 8);
-    assert!(offset_of!(ImportSpecifier, local) == 44);
-    assert!(offset_of!(ImportSpecifier, import_kind) == 76);
+    assert!(offset_of!(ImportSpecifier, local) == 40);
+    assert!(offset_of!(ImportSpecifier, import_kind) == 72);
 
     // Padding: 0 bytes
     assert!(size_of::<ImportDefaultSpecifier>() == 40);
@@ -2704,26 +2701,26 @@ const _: () = if cfg!(target_family = "wasm") || align_of::<u64>() == 8 {
     assert!(align_of::<WithClauseKeyword>() == 1);
 
     // Padding: 0 bytes
-    assert!(size_of::<ImportAttribute>() == 80);
+    assert!(size_of::<ImportAttribute>() == 72);
     assert!(align_of::<ImportAttribute>() == 4);
-    assert!(offset_of!(ImportAttribute, node_id) == 76);
+    assert!(offset_of!(ImportAttribute, node_id) == 68);
     assert!(offset_of!(ImportAttribute, span) == 0);
     assert!(offset_of!(ImportAttribute, key) == 8);
-    assert!(offset_of!(ImportAttribute, value) == 44);
+    assert!(offset_of!(ImportAttribute, value) == 40);
 
-    assert!(size_of::<ImportAttributeKey>() == 36);
+    assert!(size_of::<ImportAttributeKey>() == 32);
     assert!(align_of::<ImportAttributeKey>() == 4);
 
     // Padding: 3 bytes
-    assert!(size_of::<ExportNamedDeclaration>() == 76);
+    assert!(size_of::<ExportNamedDeclaration>() == 72);
     assert!(align_of::<ExportNamedDeclaration>() == 4);
-    assert!(offset_of!(ExportNamedDeclaration, node_id) == 68);
+    assert!(offset_of!(ExportNamedDeclaration, node_id) == 64);
     assert!(offset_of!(ExportNamedDeclaration, span) == 0);
     assert!(offset_of!(ExportNamedDeclaration, declaration) == 8);
     assert!(offset_of!(ExportNamedDeclaration, specifiers) == 16);
     assert!(offset_of!(ExportNamedDeclaration, source) == 32);
-    assert!(offset_of!(ExportNamedDeclaration, export_kind) == 72);
-    assert!(offset_of!(ExportNamedDeclaration, with_clause) == 64);
+    assert!(offset_of!(ExportNamedDeclaration, export_kind) == 68);
+    assert!(offset_of!(ExportNamedDeclaration, with_clause) == 60);
 
     // Padding: 0 bytes
     assert!(size_of::<ExportDefaultDeclaration>() == 20);
@@ -2733,28 +2730,28 @@ const _: () = if cfg!(target_family = "wasm") || align_of::<u64>() == 8 {
     assert!(offset_of!(ExportDefaultDeclaration, declaration) == 8);
 
     // Padding: 3 bytes
-    assert!(size_of::<ExportAllDeclaration>() == 88);
+    assert!(size_of::<ExportAllDeclaration>() == 80);
     assert!(align_of::<ExportAllDeclaration>() == 4);
-    assert!(offset_of!(ExportAllDeclaration, node_id) == 80);
+    assert!(offset_of!(ExportAllDeclaration, node_id) == 72);
     assert!(offset_of!(ExportAllDeclaration, span) == 0);
     assert!(offset_of!(ExportAllDeclaration, exported) == 8);
-    assert!(offset_of!(ExportAllDeclaration, source) == 44);
-    assert!(offset_of!(ExportAllDeclaration, with_clause) == 76);
-    assert!(offset_of!(ExportAllDeclaration, export_kind) == 84);
+    assert!(offset_of!(ExportAllDeclaration, source) == 40);
+    assert!(offset_of!(ExportAllDeclaration, with_clause) == 68);
+    assert!(offset_of!(ExportAllDeclaration, export_kind) == 76);
 
     // Padding: 3 bytes
-    assert!(size_of::<ExportSpecifier>() == 88);
+    assert!(size_of::<ExportSpecifier>() == 80);
     assert!(align_of::<ExportSpecifier>() == 4);
-    assert!(offset_of!(ExportSpecifier, node_id) == 80);
+    assert!(offset_of!(ExportSpecifier, node_id) == 72);
     assert!(offset_of!(ExportSpecifier, span) == 0);
     assert!(offset_of!(ExportSpecifier, local) == 8);
-    assert!(offset_of!(ExportSpecifier, exported) == 44);
-    assert!(offset_of!(ExportSpecifier, export_kind) == 84);
+    assert!(offset_of!(ExportSpecifier, exported) == 40);
+    assert!(offset_of!(ExportSpecifier, export_kind) == 76);
 
     assert!(size_of::<ExportDefaultDeclarationKind>() == 8);
     assert!(align_of::<ExportDefaultDeclarationKind>() == 4);
 
-    assert!(size_of::<ModuleExportName>() == 36);
+    assert!(size_of::<ModuleExportName>() == 32);
     assert!(align_of::<ModuleExportName>() == 4);
 
     // Padding: 0 bytes
@@ -2787,14 +2784,13 @@ const _: () = if cfg!(target_family = "wasm") || align_of::<u64>() == 8 {
     assert!(offset_of!(NumericLiteral, raw) == 16);
     assert!(offset_of!(NumericLiteral, base) == 28);
 
-    // Padding: 3 bytes
-    assert!(size_of::<StringLiteral>() == 32);
+    // Padding: 0 bytes
+    assert!(size_of::<StringLiteral>() == 28);
     assert!(align_of::<StringLiteral>() == 4);
     assert!(offset_of!(StringLiteral, node_id) == 24);
     assert!(offset_of!(StringLiteral, span) == 0);
     assert!(offset_of!(StringLiteral, value) == 8);
     assert!(offset_of!(StringLiteral, raw) == 16);
-    assert!(offset_of!(StringLiteral, lone_surrogates) == 28);
 
     // Padding: 3 bytes
     assert!(size_of::<BigIntLiteral>() == 32);
@@ -3372,20 +3368,20 @@ const _: () = if cfg!(target_family = "wasm") || align_of::<u64>() == 8 {
     assert!(align_of::<TSTypePredicateName>() == 4);
 
     // Padding: 2 bytes
-    assert!(size_of::<TSModuleDeclaration>() == 64);
+    assert!(size_of::<TSModuleDeclaration>() == 60);
     assert!(align_of::<TSModuleDeclaration>() == 4);
-    assert!(offset_of!(TSModuleDeclaration, node_id) == 52);
+    assert!(offset_of!(TSModuleDeclaration, node_id) == 48);
     assert!(offset_of!(TSModuleDeclaration, span) == 0);
     assert!(offset_of!(TSModuleDeclaration, id) == 8);
-    assert!(offset_of!(TSModuleDeclaration, body) == 44);
-    assert!(offset_of!(TSModuleDeclaration, kind) == 60);
-    assert!(offset_of!(TSModuleDeclaration, declare) == 61);
-    assert!(offset_of!(TSModuleDeclaration, scope_id) == 56);
+    assert!(offset_of!(TSModuleDeclaration, body) == 40);
+    assert!(offset_of!(TSModuleDeclaration, kind) == 56);
+    assert!(offset_of!(TSModuleDeclaration, declare) == 57);
+    assert!(offset_of!(TSModuleDeclaration, scope_id) == 52);
 
     assert!(size_of::<TSModuleDeclarationKind>() == 1);
     assert!(align_of::<TSModuleDeclarationKind>() == 1);
 
-    assert!(size_of::<TSModuleDeclarationName>() == 36);
+    assert!(size_of::<TSModuleDeclarationName>() == 32);
     assert!(align_of::<TSModuleDeclarationName>() == 4);
 
     assert!(size_of::<TSModuleDeclarationBody>() == 8);
@@ -3435,14 +3431,14 @@ const _: () = if cfg!(target_family = "wasm") || align_of::<u64>() == 8 {
     assert!(align_of::<TSTypeQueryExprName>() == 4);
 
     // Padding: 0 bytes
-    assert!(size_of::<TSImportType>() == 60);
+    assert!(size_of::<TSImportType>() == 56);
     assert!(align_of::<TSImportType>() == 4);
-    assert!(offset_of!(TSImportType, node_id) == 56);
+    assert!(offset_of!(TSImportType, node_id) == 52);
     assert!(offset_of!(TSImportType, span) == 0);
     assert!(offset_of!(TSImportType, source) == 8);
-    assert!(offset_of!(TSImportType, options) == 40);
-    assert!(offset_of!(TSImportType, qualifier) == 44);
-    assert!(offset_of!(TSImportType, type_arguments) == 52);
+    assert!(offset_of!(TSImportType, options) == 36);
+    assert!(offset_of!(TSImportType, qualifier) == 40);
+    assert!(offset_of!(TSImportType, type_arguments) == 48);
 
     assert!(size_of::<TSImportTypeQualifier>() == 8);
     assert!(align_of::<TSImportTypeQualifier>() == 4);
@@ -3538,9 +3534,9 @@ const _: () = if cfg!(target_family = "wasm") || align_of::<u64>() == 8 {
     assert!(align_of::<TSModuleReference>() == 4);
 
     // Padding: 0 bytes
-    assert!(size_of::<TSExternalModuleReference>() == 44);
+    assert!(size_of::<TSExternalModuleReference>() == 40);
     assert!(align_of::<TSExternalModuleReference>() == 4);
-    assert!(offset_of!(TSExternalModuleReference, node_id) == 40);
+    assert!(offset_of!(TSExternalModuleReference, node_id) == 36);
     assert!(offset_of!(TSExternalModuleReference, span) == 0);
     assert!(offset_of!(TSExternalModuleReference, expression) == 8);
 

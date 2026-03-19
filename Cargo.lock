@@ -1670,6 +1670,7 @@ dependencies = [
  "oxc_regular_expression",
  "oxc_span",
  "oxc_syntax",
+ "oxc_wtf8",
 ]
 
 [[package]]
@@ -1865,6 +1866,7 @@ dependencies = [
  "oxc_regular_expression",
  "oxc_span",
  "oxc_syntax",
+ "oxc_wtf8",
 ]
 
 [[package]]
@@ -2157,6 +2159,7 @@ dependencies = [
  "oxc_regular_expression",
  "oxc_span",
  "oxc_syntax",
+ "oxc_wtf8",
  "pico-args",
  "rustc-hash",
  "seq-macro",
@@ -2499,6 +2502,7 @@ dependencies = [
  "oxc_allocator",
  "oxc_data_structures",
  "oxc_estree",
+ "oxc_span",
  "oxc_str",
  "serde",
 ]

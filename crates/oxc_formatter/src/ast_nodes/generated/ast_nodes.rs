@@ -1652,11 +1652,6 @@ impl<'a> AstNode<'a, TemplateElement<'a>> {
         self.inner.tail
     }
 
-    #[inline]
-    pub fn lone_surrogates(&self) -> bool {
-        self.inner.lone_surrogates
-    }
-
     pub fn format_leading_comments(&self, f: &mut Formatter<'_, 'a>) {
         format_leading_comments(self.span()).fmt(f);
     }
@@ -6356,18 +6351,13 @@ impl<'a> AstNode<'a, StringLiteral<'a>> {
     }
 
     #[inline]
-    pub fn value(&self) -> Atom<'a> {
+    pub fn value(&self) -> Wtf8Atom<'a> {
         self.inner.value
     }
 
     #[inline]
     pub fn raw(&self) -> Option<Atom<'a>> {
         self.inner.raw
-    }
-
-    #[inline]
-    pub fn lone_surrogates(&self) -> bool {
-        self.inner.lone_surrogates
     }
 
     pub fn format_leading_comments(&self, f: &mut Formatter<'_, 'a>) {

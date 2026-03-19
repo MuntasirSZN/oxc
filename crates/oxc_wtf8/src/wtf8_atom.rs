@@ -7,7 +7,8 @@
 
 use std::{borrow::Cow, fmt, hash, ops::Deref};
 
-use oxc_allocator::{Allocator, CloneIn, Dummy, FromIn};
+use oxc_allocator::{Allocator, CloneIn, Dummy, FromIn, TakeIn};
+use oxc_span::ContentEq;
 use oxc_str::Atom;
 #[cfg(feature = "serialize")]
 use serde::{Serialize, Serializer as SerdeSerializer};
@@ -165,6 +166,14 @@ impl<'alloc> FromIn<'alloc, String> for Wtf8Atom<'alloc> {
     }
 }
 
+impl ContentEq for Wtf8Atom<'_> {
+    fn content_eq(&self, other: &Self) -> bool {
+        self == other
+    }
+}
+
+impl<'a> TakeIn<'a> for Wtf8Atom<'a> {}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // Standard trait implementations
 // ──────────────────────────────────────────────────────────────────────────────
@@ -215,6 +224,13 @@ impl PartialEq<str> for Wtf8Atom<'_> {
     #[inline]
     fn eq(&self, other: &str) -> bool {
         self.0 == other
+    }
+}
+
+impl PartialEq<&str> for Wtf8Atom<'_> {
+    #[inline]
+    fn eq(&self, other: &&str) -> bool {
+        self.0 == *other
     }
 }
 
