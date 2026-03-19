@@ -480,15 +480,14 @@ impl<'a, C: Config> ParserImpl<'a, C> {
     /// represents an actual replacement character (not a lone surrogate).
     /// 
     /// This function decodes these markers back into proper WTF-8 byte sequences.
-    fn decode_lone_surrogates_to_wtf8_atom(&mut self, atom: Atom<'a>, has_lone_surrogates: bool) -> Wtf8Atom<'a> {
+    fn decode_lone_surrogates_to_wtf8_atom(&mut self, s: &'a str, has_lone_surrogates: bool) -> Wtf8Atom<'a> {
         if !has_lone_surrogates {
             // No lone surrogates, can convert directly
-            return Wtf8Atom::from(atom);
+            return Wtf8Atom::from(s);
         }
 
         // Decode the lone surrogates
         let mut wtf8_buf = Wtf8Buf::new();
-        let s = atom.as_str();
         let mut chars = s.chars();
         
         while let Some(ch) = chars.next() {
@@ -703,7 +702,7 @@ impl<'a, C: Config> ParserImpl<'a, C> {
             let cooked = cooked_atom.map(|atom| self.decode_lone_surrogates_to_wtf8_atom(atom, lone_surrogates));
             (cooked, lone_surrogates)
         } else {
-            let wtf8_value = self.decode_lone_surrogates_to_wtf8_atom(raw, false);
+            let wtf8_value = self.decode_lone_surrogates_to_wtf8_atom(raw.as_str(), false);
             (Some(wtf8_value), false)
         };
 
