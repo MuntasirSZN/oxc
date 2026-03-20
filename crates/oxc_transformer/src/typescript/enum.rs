@@ -473,18 +473,20 @@ impl<'a> TypeScriptEnum<'a> {
             && (matches!(left, ConstantValue::String(_))
                 || matches!(right, ConstantValue::String(_)))
         {
-            let left_string = match left {
+            let left_string: Wtf8Atom<'a> = match left {
                 ConstantValue::String(str) => str,
-                ConstantValue::Number(v) => ctx.ast.atom(&v.to_js_string()),
+                ConstantValue::Number(v) => ctx.ast.atom(&v.to_js_string()).into(),
             };
 
-            let right_string = match right {
+            let right_string: Wtf8Atom<'a> = match right {
                 ConstantValue::String(str) => str,
-                ConstantValue::Number(v) => ctx.ast.atom(&v.to_js_string()),
+                ConstantValue::Number(v) => ctx.ast.atom(&v.to_js_string()).into(),
             };
 
+            let left_cow = left_string.to_str_lossy();
+            let right_cow = right_string.to_str_lossy();
             return Some(ConstantValue::String(
-                ctx.ast.atom_from_strs_array([&left_string, &right_string]),
+                ctx.ast.atom_from_strs_array([&*left_cow, &*right_cow]).into(),
             ));
         }
 

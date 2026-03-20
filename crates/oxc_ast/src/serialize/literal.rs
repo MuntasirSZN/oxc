@@ -1,5 +1,5 @@
 use oxc_ast_macros::ast_meta;
-use oxc_estree::{ESTree, JsonSafeString, LoneSurrogatesString, Serializer, StructSerializer};
+use oxc_estree::{ESTree, JsonSafeString, Serializer, StructSerializer};
 
 use crate::ast::*;
 
