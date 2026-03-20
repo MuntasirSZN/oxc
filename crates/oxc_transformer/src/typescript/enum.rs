@@ -1,4 +1,4 @@
-use std::cell::Cell;
+use std::{borrow::Cow, cell::Cell};
 
 use rustc_hash::FxHashMap;
 
@@ -9,6 +9,7 @@ use oxc_data_structures::stack::NonEmptyStack;
 use oxc_ecmascript::{ToInt32, ToUint32};
 use oxc_semantic::{ScopeFlags, ScopeId};
 use oxc_span::{Atom, Ident, IdentHashMap, SPAN, Span};
+use oxc_wtf8::Wtf8Atom;
 use oxc_syntax::{
     number::{NumberBase, ToJsString},
     operator::{AssignmentOperator, BinaryOperator, LogicalOperator, UnaryOperator},
@@ -270,7 +271,7 @@ impl<'a> TypeScriptEnum<'a> {
                 previous_enum_members.insert(member_name, None);
                 let self_ref = {
                     let obj = param_binding.create_read_expression(ctx);
-                    let expr = ctx.ast.expression_string_literal(SPAN, prev_member_name, None);
+                    let expr = ctx.ast.expression_string_literal(SPAN, prev_member_name.into(), None);
                     ast.member_expression_computed(SPAN, obj, expr, false).into()
                 };
 
@@ -287,7 +288,7 @@ impl<'a> TypeScriptEnum<'a> {
             // Foo["x"] = init
             let member_expr = {
                 let obj = param_binding.create_read_expression(ctx);
-                let expr = ast.expression_string_literal(SPAN, member_name, None);
+                let expr = ast.expression_string_literal(SPAN, member_name.into(), None);
 
                 ast.member_expression_computed(SPAN, obj, expr, false)
             };
@@ -306,7 +307,7 @@ impl<'a> TypeScriptEnum<'a> {
                     ast.member_expression_computed(SPAN, obj, expr, false)
                 };
                 let left = SimpleAssignmentTarget::from(member_expr);
-                let right = ast.expression_string_literal(SPAN, member_name, None);
+                let right = ast.expression_string_literal(SPAN, member_name.into(), None);
                 expr = ast.expression_assignment(
                     member_span,
                     AssignmentOperator::Assign,
@@ -357,7 +358,7 @@ impl<'a> TypeScriptEnum<'a> {
 #[derive(Debug, Clone, Copy)]
 enum ConstantValue<'a> {
     Number(f64),
-    String(Atom<'a>),
+    String(Wtf8Atom<'a>),
 }
 
 impl<'a> TypeScriptEnum<'a> {
@@ -427,20 +428,28 @@ impl<'a> TypeScriptEnum<'a> {
             Expression::NumericLiteral(lit) => Some(ConstantValue::Number(lit.value)),
             Expression::StringLiteral(lit) => Some(ConstantValue::String(lit.value)),
             Expression::TemplateLiteral(lit) => {
-                let value = if let Some(quasi) = lit.single_quasi() {
+                let value: Wtf8Atom<'a> = if let Some(quasi) = lit.single_quasi() {
                     quasi
                 } else {
                     let mut value = StringBuilder::new_in(ctx.ast.allocator);
                     for (i, quasi) in lit.quasis.iter().enumerate() {
-                        value.push_str(&quasi.value.cooked.unwrap_or(quasi.value.raw));
+                        if let Some(cooked) = quasi.value.cooked {
+                            let s = cooked.to_str_lossy();
+                            value.push_str(&s);
+                        } else {
+                            value.push_str(&quasi.value.raw);
+                        }
                         if i < lit.expressions.len() {
                             match self.evaluate(&lit.expressions[i], prev_members, ctx)? {
-                                ConstantValue::String(str) => value.push_str(&str),
+                                ConstantValue::String(str) => {
+                                    let s = str.to_str_lossy();
+                                    value.push_str(&s);
+                                }
                                 ConstantValue::Number(num) => value.push_str(&num.to_js_string()),
                             }
                         }
                     }
-                    Atom::from(value.into_str())
+                    Atom::from(value.into_str()).into()
                 };
                 Some(ConstantValue::String(value))
             }
