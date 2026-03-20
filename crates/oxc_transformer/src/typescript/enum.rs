@@ -1,4 +1,4 @@
-use std::{borrow::Cow, cell::Cell};
+use std::cell::Cell;
 
 use rustc_hash::FxHashMap;
 
@@ -224,7 +224,7 @@ impl<'a> TypeScriptEnum<'a> {
         let mut prev_constant_number = Some(-1.0);
         let mut previous_enum_members = self.enums.entry(param_binding.name).or_default().clone();
 
-        let mut prev_member_name = None;
+        let mut prev_member_name: Option<Atom<'a>> = None;
 
         for member in members.take_in(ctx.ast) {
             let member_span = member.span;

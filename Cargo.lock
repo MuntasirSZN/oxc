@@ -2084,6 +2084,7 @@ dependencies = [
  "oxc_str",
  "oxc_syntax",
  "oxc_traverse",
+ "oxc_wtf8",
  "pico-args",
  "rustc-hash",
 ]
@@ -2445,6 +2446,7 @@ dependencies = [
  "oxc_span",
  "oxc_syntax",
  "oxc_traverse",
+ "oxc_wtf8",
  "pico-args",
  "rustc-hash",
  "serde",
