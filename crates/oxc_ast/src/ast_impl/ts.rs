@@ -217,6 +217,10 @@ impl<'a> TSModuleDeclarationName<'a> {
     }
 
     /// Get the static name of this module declaration name.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the string literal value contains lone surrogates.
     pub fn name(&self) -> Atom<'a> {
         match self {
             Self::Identifier(ident) => ident.name.into(),

@@ -1908,6 +1908,7 @@ dependencies = [
  "oxc_span",
  "oxc_syntax",
  "oxc_tasks_common",
+ "oxc_wtf8",
  "phf",
  "pico-args",
  "rustc-hash",

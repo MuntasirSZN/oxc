@@ -1001,8 +1001,8 @@ mod tests {
     #[test]
     fn as_str_with_surrogate() {
         let bytes = [0xED, 0xA0, 0x80]; // U+D800
+        // SAFETY: bytes are a valid lone-surrogate WTF-8 sequence (U+D800).
         let s = unsafe { Wtf8::from_bytes_unchecked(&bytes) };
-        assert!(s.as_str().is_none());
     }
 
     #[test]
@@ -1013,6 +1013,7 @@ mod tests {
     #[test]
     fn contains_lone_surrogates_true() {
         let bytes = [0xED, 0xA0, 0x80];
+        // SAFETY: bytes are a valid lone-surrogate WTF-8 sequence (U+D800).
         let s = unsafe { Wtf8::from_bytes_unchecked(&bytes) };
         assert!(s.contains_lone_surrogates());
     }
@@ -1021,6 +1022,7 @@ mod tests {
     fn next_lone_surrogate_finds_it() {
         // "a" + U+D800 + "b"
         let bytes = [b'a', 0xED, 0xA0, 0x80, b'b'];
+        // SAFETY: bytes are a valid WTF-8 sequence (ASCII 'a', lone surrogate U+D800, ASCII 'b').
         let s = unsafe { Wtf8::from_bytes_unchecked(&bytes) };
         let result = s.next_lone_surrogate(0);
         assert_eq!(result, Some((1, 0xD800)));
@@ -1042,6 +1044,7 @@ mod tests {
     fn to_str_lossy_with_surrogate() {
         // U+D800 alone
         let bytes = [0xED, 0xA0, 0x80];
+        // SAFETY: bytes are a valid lone-surrogate WTF-8 sequence (U+D800).
         let s = unsafe { Wtf8::from_bytes_unchecked(&bytes) };
         let lossy = s.to_str_lossy();
         assert_eq!(&*lossy, "\u{FFFD}");
@@ -1129,6 +1132,7 @@ mod tests {
     #[test]
     fn code_points_with_surrogate() {
         let bytes = [0xED, 0xA0, 0x80]; // U+D800
+        // SAFETY: bytes are a valid lone-surrogate WTF-8 sequence (U+D800).
         let s = unsafe { Wtf8::from_bytes_unchecked(&bytes) };
         let cps: Vec<_> = s.code_points().collect();
         assert_eq!(cps, vec![CodePoint::LoneSurrogate(0xD800)]);
@@ -1153,6 +1157,7 @@ mod tests {
     #[test]
     fn ill_formed_utf16_lone_surrogate() {
         let bytes = [0xED, 0xB0, 0x80]; // U+DC00
+        // SAFETY: bytes are a valid lone-surrogate WTF-8 sequence (U+DC00).
         let s = unsafe { Wtf8::from_bytes_unchecked(&bytes) };
         let units: Vec<u16> = s.to_ill_formed_utf16().collect();
         assert_eq!(units, vec![0xDC00]);

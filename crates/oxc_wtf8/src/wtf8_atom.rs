@@ -439,6 +439,7 @@ mod tests {
     #[test]
     fn from_wtf8_with_surrogate() {
         let bytes = [0xED, 0xA0, 0x80]; // U+D800
+        // SAFETY: bytes are a valid lone-surrogate WTF-8 sequence (U+D800).
         let wtf8 = unsafe { Wtf8::from_bytes_unchecked(&bytes) };
         let atom = Wtf8Atom::from_wtf8(wtf8);
         assert!(atom.as_str().is_none());
@@ -455,6 +456,7 @@ mod tests {
     #[test]
     fn try_into_atom_fail() {
         let bytes = [0xED, 0xA0, 0x80];
+        // SAFETY: bytes are a valid lone-surrogate WTF-8 sequence (U+D800).
         let wtf8 = unsafe { Wtf8::from_bytes_unchecked(&bytes) };
         let atom = Wtf8Atom::from_wtf8(wtf8);
         assert!(atom.try_into_atom().is_none());
@@ -469,6 +471,7 @@ mod tests {
     #[test]
     fn to_str_lossy_with_surrogate() {
         let bytes = [b'a', 0xED, 0xA0, 0x80, b'b'];
+        // SAFETY: bytes are a valid WTF-8 sequence (ASCII 'a', lone surrogate U+D800, ASCII 'b').
         let wtf8 = unsafe { Wtf8::from_bytes_unchecked(&bytes) };
         let atom = Wtf8Atom::from_wtf8(wtf8);
         let lossy = atom.to_str_lossy();
@@ -486,6 +489,7 @@ mod tests {
     fn from_in_wtf8() {
         let allocator = Allocator::new();
         let bytes = [b'a', 0xED, 0xB0, 0x80, b'b'];
+        // SAFETY: bytes are a valid WTF-8 sequence (ASCII 'a', lone trail surrogate U+DC00, ASCII 'b').
         let wtf8 = unsafe { Wtf8::from_bytes_unchecked(&bytes) };
         let atom = Wtf8Atom::from_in(wtf8, &allocator);
         assert!(atom.contains_lone_surrogates());
@@ -495,6 +499,7 @@ mod tests {
     fn clone_in() {
         let allocator = Allocator::new();
         let bytes = [0xED, 0xA0, 0x80];
+        // SAFETY: bytes are a valid lone-surrogate WTF-8 sequence (U+D800).
         let wtf8 = unsafe { Wtf8::from_bytes_unchecked(&bytes) };
         let atom = Wtf8Atom::from_wtf8(wtf8);
         let cloned = atom.clone_in(&allocator);
@@ -520,6 +525,7 @@ mod tests {
     #[test]
     fn debug_display_with_surrogate() {
         let bytes = [0xED, 0xA0, 0x80]; // U+D800
+        // SAFETY: bytes are a valid lone-surrogate WTF-8 sequence (U+D800).
         let wtf8 = unsafe { Wtf8::from_bytes_unchecked(&bytes) };
         let a = Wtf8Atom::from_wtf8(wtf8);
         // Display replaces with replacement char

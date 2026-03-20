@@ -692,7 +692,7 @@ impl<'a, C: Config> ParserImpl<'a, C> {
         // Also replace `\r` with `\n` in `raw`.
         // If contains `\r`, then `escaped` must be `true` (because `\r` needs unescaping),
         // so we can skip searching for `\r` in common case where contains no escapes.
-        let (cooked, lone_surrogates) = if self.cur_token().escaped() {
+        let (cooked, _lone_surrogates) = if self.cur_token().escaped() {
             // `cooked = None` when template literal has invalid escape sequence
             let cooked_atom = self.cur_template_string();
             let lone_surrogates = self.cur_token().lone_surrogates();

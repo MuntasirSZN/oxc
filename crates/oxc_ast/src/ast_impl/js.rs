@@ -1935,6 +1935,10 @@ impl<'a> ImportDeclarationSpecifier<'a> {
 
 impl<'a> ImportAttributeKey<'a> {
     /// Returns the string value of this import attribute key.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the string literal value contains lone surrogates.
     pub fn as_atom(&self) -> Atom<'a> {
         match self {
             Self::Identifier(identifier) => identifier.name.into(),
@@ -1996,6 +2000,10 @@ impl<'a> ModuleExportName<'a> {
     /// - `export { foo }` => `"foo"`
     /// - `export { foo as bar }` => `"bar"`
     /// - `export { foo as "anything" }` => `"anything"`
+    ///
+    /// # Panics
+    ///
+    /// Panics if the string literal value contains lone surrogates.
     pub fn name(&self) -> Atom<'a> {
         match self {
             Self::IdentifierName(identifier) => identifier.name.into(),
