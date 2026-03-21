@@ -618,17 +618,11 @@ function deserializeTaggedTemplateExpression(pos) {
 function deserializeTemplateElement(pos) {
   let tail = deserializeBool(pos + 44),
     start = deserializeU32(pos) - 1,
-    end = deserializeU32(pos + 4) + 2 - tail,
-    value = deserializeTemplateElementValue(pos + 8);
-  value.cooked !== null &&
-    deserializeBool(pos + 45) &&
-    (value.cooked = value.cooked.replace(/\uFFFD(.{4})/g, (_, hex) =>
-      String.fromCodePoint(parseInt(hex, 16)),
-    ));
+    end = deserializeU32(pos + 4) + 2 - tail;
   return {
     __proto__: NodeProto,
     type: "TemplateElement",
-    value,
+    value: deserializeTemplateElementValue(pos + 8),
     tail,
     start,
     end,
@@ -3265,11 +3259,8 @@ function deserializeStringLiteral(pos) {
       end: (end = deserializeU32(pos + 4)),
       range: [start, end],
       parent,
-    }),
-    value = deserializeStr(pos + 8);
-  deserializeBool(pos + 44) &&
-    (value = value.replace(/\uFFFD(.{4})/g, (_, hex) => String.fromCodePoint(parseInt(hex, 16))));
-  node.value = value;
+    });
+  node.value = deserializeStr(pos + 8);
   parent = previousParent;
   return node;
 }
@@ -6682,7 +6673,7 @@ function deserializeVecExportSpecifier(pos) {
 }
 
 function deserializeOptionStringLiteral(pos) {
-  if (uint8[pos + 44] === 2) return null;
+  if (uint32[(pos + 8) >> 2] === 0 && uint32[(pos + 12) >> 2] === 0) return null;
   return deserializeStringLiteral(pos);
 }
 
@@ -6693,6 +6684,11 @@ function deserializeOptionModuleExportName(pos) {
 
 function deserializeF64(pos) {
   return float64[pos >> 3];
+}
+
+function deserializeOptionStr(pos) {
+  if (uint32[pos >> 2] === 0 && uint32[(pos + 4) >> 2] === 0) return null;
+  return deserializeStr(pos);
 }
 
 function deserializeBoxJSXOpeningElement(pos) {

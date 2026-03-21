@@ -1942,6 +1942,7 @@ dependencies = [
  "oxc_parser",
  "oxc_span",
  "oxc_syntax",
+ "oxc_wtf8",
  "rustc-hash",
 ]
 

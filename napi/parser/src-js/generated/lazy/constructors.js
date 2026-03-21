@@ -13430,7 +13430,8 @@ function constructExportSpecifier(pos, ast) {
 }
 
 function constructOptionStringLiteral(pos, ast) {
-  if (ast.buffer[pos + 44] === 2) return null;
+  if (ast.buffer.uint32[(pos + 8) >> 2] === 0 && ast.buffer.uint32[(pos + 12) >> 2] === 0)
+    return null;
   return new StringLiteral(pos, ast);
 }
 
@@ -13441,6 +13442,11 @@ function constructOptionModuleExportName(pos, ast) {
 
 function constructF64(pos, ast) {
   return ast.buffer.float64[pos >> 3];
+}
+
+function constructOptionStr(pos, ast) {
+  if (ast.buffer.uint32[pos >> 2] === 0 && ast.buffer.uint32[(pos + 4) >> 2] === 0) return null;
+  return constructStr(pos, ast);
 }
 
 function constructBoxJSXOpeningElement(pos, ast) {

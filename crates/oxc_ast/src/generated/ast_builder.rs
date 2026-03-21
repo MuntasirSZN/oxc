@@ -9666,10 +9666,12 @@ impl<'a> AstBuilder<'a> {
     /// * `value`: The text content.
     /// * `raw`: The raw string as it appears in source code.
     #[inline]
-    pub fn jsx_child_text<A1>(self, span: Span, value: A1, raw: Option<Atom<'a>>) -> JSXChild<'a>
-    where
-        A1: Into<Wtf8Atom<'a>>,
-    {
+    pub fn jsx_child_text(
+        self,
+        span: Span,
+        value: Wtf8Atom<'a>,
+        raw: Option<Atom<'a>>,
+    ) -> JSXChild<'a> {
         JSXChild::Text(self.alloc_jsx_text(span, value, raw))
     }
 
@@ -9790,11 +9792,8 @@ impl<'a> AstBuilder<'a> {
     /// * `value`: The text content.
     /// * `raw`: The raw string as it appears in source code.
     #[inline]
-    pub fn jsx_text<A1>(self, span: Span, value: A1, raw: Option<Atom<'a>>) -> JSXText<'a>
-    where
-        A1: Into<Wtf8Atom<'a>>,
-    {
-        JSXText { node_id: Cell::new(NodeId::DUMMY), span, value: value.into(), raw }
+    pub fn jsx_text(self, span: Span, value: Wtf8Atom<'a>, raw: Option<Atom<'a>>) -> JSXText<'a> {
+        JSXText { node_id: Cell::new(NodeId::DUMMY), span, value, raw }
     }
 
     /// Build a [`JSXText`], and store it in the memory arena.
@@ -9807,15 +9806,12 @@ impl<'a> AstBuilder<'a> {
     /// * `value`: The text content.
     /// * `raw`: The raw string as it appears in source code.
     #[inline]
-    pub fn alloc_jsx_text<A1>(
+    pub fn alloc_jsx_text(
         self,
         span: Span,
-        value: A1,
+        value: Wtf8Atom<'a>,
         raw: Option<Atom<'a>>,
-    ) -> Box<'a, JSXText<'a>>
-    where
-        A1: Into<Wtf8Atom<'a>>,
-    {
+    ) -> Box<'a, JSXText<'a>> {
         Box::new_in(self.jsx_text(span, value, raw), self.allocator)
     }
 
