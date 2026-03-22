@@ -232,7 +232,11 @@ impl<'a> InjectGlobalVariables<'a> {
                         if identifier::is_identifier_name(&imported_name) {
                             self.ast.module_export_name_identifier_name(SPAN, imported_name)
                         } else {
-                            self.ast.module_export_name_string_literal(SPAN, imported_name.into(), None)
+                            self.ast.module_export_name_string_literal(
+                                SPAN,
+                                imported_name.into(),
+                                None,
+                            )
                         }
                     }
                     None => self.ast.module_export_name_identifier_name(SPAN, "default"),

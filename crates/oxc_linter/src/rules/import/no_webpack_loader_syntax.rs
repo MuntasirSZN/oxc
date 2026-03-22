@@ -76,10 +76,7 @@ impl Rule for NoWebpackLoaderSyntax {
 
                     let value = ident.value.to_str_lossy();
                     if value.contains('!') {
-                        ctx.diagnostic(no_named_as_default_diagnostic(
-                            value.as_ref(),
-                            ident.span,
-                        ));
+                        ctx.diagnostic(no_named_as_default_diagnostic(value.as_ref(), ident.span));
                     }
                 }
             }

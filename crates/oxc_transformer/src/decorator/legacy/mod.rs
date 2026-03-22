@@ -1333,7 +1333,9 @@ impl<'a> LegacyDecorator<'a> {
                 ctx.ast.expression_string_literal(SPAN, ident.name.as_str().into(), None)
             }
             // Legacy decorators do not support private key
-            PropertyKey::PrivateIdentifier(_) => ctx.ast.expression_string_literal(SPAN, "".into(), None),
+            PropertyKey::PrivateIdentifier(_) => {
+                ctx.ast.expression_string_literal(SPAN, "".into(), None)
+            }
             // Copiable literals
             PropertyKey::NumericLiteral(literal) => {
                 Expression::NumericLiteral(ctx.ast.alloc(literal.clone()))

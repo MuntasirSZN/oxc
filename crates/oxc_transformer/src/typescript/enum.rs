@@ -9,7 +9,6 @@ use oxc_data_structures::stack::NonEmptyStack;
 use oxc_ecmascript::{ToInt32, ToUint32};
 use oxc_semantic::{ScopeFlags, ScopeId};
 use oxc_span::{Atom, Ident, IdentHashMap, SPAN, Span};
-use oxc_wtf8::Wtf8Atom;
 use oxc_syntax::{
     number::{NumberBase, ToJsString},
     operator::{AssignmentOperator, BinaryOperator, LogicalOperator, UnaryOperator},
@@ -17,6 +16,7 @@ use oxc_syntax::{
     symbol::SymbolFlags,
 };
 use oxc_traverse::{BoundIdentifier, Traverse};
+use oxc_wtf8::Wtf8Atom;
 
 use crate::{context::TraverseCtx, state::TransformState};
 
@@ -271,7 +271,8 @@ impl<'a> TypeScriptEnum<'a> {
                 previous_enum_members.insert(member_name, None);
                 let self_ref = {
                     let obj = param_binding.create_read_expression(ctx);
-                    let expr = ctx.ast.expression_string_literal(SPAN, prev_member_name.into(), None);
+                    let expr =
+                        ctx.ast.expression_string_literal(SPAN, prev_member_name.into(), None);
                     ast.member_expression_computed(SPAN, obj, expr, false).into()
                 };
 

@@ -337,7 +337,8 @@ impl<'a> ObjectRestSpread<'a> {
                 match e {
                     AssignmentTargetProperty::AssignmentTargetPropertyIdentifier(ident) => {
                         let name = ident.binding.name;
-                        let expr = ctx.ast.expression_string_literal(SPAN, name.as_str().into(), None);
+                        let expr =
+                            ctx.ast.expression_string_literal(SPAN, name.as_str().into(), None);
                         Some(ArrayExpressionElement::from(expr))
                     }
                     AssignmentTargetProperty::AssignmentTargetPropertyProperty(p) => {
@@ -1000,7 +1001,8 @@ impl<'a> ObjectRestSpread<'a> {
             // `let { a, ... rest }`
             PropertyKey::StaticIdentifier(ident) => {
                 let name = ident.name;
-                let expr = ctx.ast.expression_string_literal(ident.span, name.as_str().into(), None);
+                let expr =
+                    ctx.ast.expression_string_literal(ident.span, name.as_str().into(), None);
                 Some(ArrayExpressionElement::from(expr))
             }
             // `let { 'a', ... rest }`

@@ -474,7 +474,9 @@ impl<'a> PropertyKey<'a> {
             Self::NumericLiteral(lit) => Some(Cow::Owned(lit.value.to_string())),
             Self::BigIntLiteral(lit) => Some(Cow::Borrowed(lit.value.as_str())),
             Self::NullLiteral(_) => Some(Cow::Borrowed("null")),
-            Self::TemplateLiteral(lit) => lit.single_quasi().and_then(|wtf8| wtf8.as_str().map(Cow::Borrowed)),
+            Self::TemplateLiteral(lit) => {
+                lit.single_quasi().and_then(|wtf8| wtf8.as_str().map(Cow::Borrowed))
+            }
             _ => None,
         }
     }
@@ -1974,7 +1976,9 @@ impl<'a> ImportAttributeKey<'a> {
     pub fn as_atom(&self) -> Atom<'a> {
         match self {
             Self::Identifier(identifier) => identifier.name.into(),
-            Self::StringLiteral(literal) => literal.value.try_into_atom().expect("String literal should not contain lone surrogates in ImportAttributeKey context"),
+            Self::StringLiteral(literal) => literal.value.try_into_atom().expect(
+                "String literal should not contain lone surrogates in ImportAttributeKey context",
+            ),
         }
     }
 }
@@ -2040,7 +2044,9 @@ impl<'a> ModuleExportName<'a> {
         match self {
             Self::IdentifierName(identifier) => identifier.name.into(),
             Self::IdentifierReference(identifier) => identifier.name.into(),
-            Self::StringLiteral(literal) => literal.value.try_into_atom().expect("String literal should not contain lone surrogates in module export name context"),
+            Self::StringLiteral(literal) => literal.value.try_into_atom().expect(
+                "String literal should not contain lone surrogates in module export name context",
+            ),
         }
     }
 

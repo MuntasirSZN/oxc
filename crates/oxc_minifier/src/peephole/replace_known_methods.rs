@@ -43,7 +43,9 @@ impl<'a> PeepholeOptimizations {
             }
             Expression::ComputedMemberExpression(member) if !member.optional => {
                 match &member.expression {
-                    Expression::StringLiteral(s) => (s.value.as_str().unwrap_or_default(), &member.object),
+                    Expression::StringLiteral(s) => {
+                        (s.value.as_str().unwrap_or_default(), &member.object)
+                    }
                     _ => return,
                 }
             }
@@ -296,9 +298,12 @@ impl<'a> PeepholeOptimizations {
                             let last_quasi = quasi_strs
                                 .last_mut()
                                 .expect("last element should exist because pushed_quasi is true");
-                            last_quasi.to_mut().push_str(str_lit.value.as_str().unwrap_or_default());
+                            last_quasi
+                                .to_mut()
+                                .push_str(str_lit.value.as_str().unwrap_or_default());
                         } else {
-                            quasi_strs.push(Cow::Borrowed(str_lit.value.as_str().unwrap_or_default()));
+                            quasi_strs
+                                .push(Cow::Borrowed(str_lit.value.as_str().unwrap_or_default()));
                         }
                         pushed_quasi = true;
                     } else {

@@ -4,11 +4,11 @@ use oxc_allocator::{CloneIn, FromIn};
 use oxc_ast::ast::*;
 use oxc_ecmascript::{ToInt32, ToUint32};
 use oxc_span::{Atom, GetSpan, SPAN};
-use oxc_wtf8::Wtf8Atom;
 use oxc_syntax::{
     number::{NumberBase, ToJsString},
     operator::{BinaryOperator, UnaryOperator},
 };
+use oxc_wtf8::Wtf8Atom;
 
 use crate::{IsolatedDeclarations, diagnostics::enum_member_initializers};
 

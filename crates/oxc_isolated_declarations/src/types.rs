@@ -73,10 +73,8 @@ impl<'a> IsolatedDeclarations<'a> {
             PropertyKey::StringLiteral(literal)
                 if literal.value.as_str().is_some_and(|s| is_identifier_name(s)) =>
             {
-                self.ast.property_key_static_identifier(
-                    literal.span,
-                    literal.value.as_str().unwrap(),
-                )
+                self.ast
+                    .property_key_static_identifier(literal.span, literal.value.as_str().unwrap())
             }
             // [`string`] -> string
             PropertyKey::TemplateLiteral(literal)

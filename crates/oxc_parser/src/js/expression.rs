@@ -8,7 +8,7 @@ use oxc_syntax::{
     number::{BigintBase, NumberBase},
     precedence::Precedence,
 };
-use oxc_wtf8::{Wtf8, Wtf8Buf, Wtf8Atom};
+use oxc_wtf8::{Wtf8, Wtf8Atom, Wtf8Buf};
 
 use super::{
     grammar::CoverGrammar,
@@ -474,13 +474,17 @@ impl<'a, C: Config> ParserImpl<'a, C> {
     }
 
     /// Convert a string with lone surrogate encoding to a WTF-8 atom.
-    /// 
+    ///
     /// The lexer encodes lone surrogates in the atom string using `\u{FFFD}XXXX` markers,
     /// where XXXX is the 4-digit hex code unit of the lone surrogate. The marker `\u{FFFD}fffd`
     /// represents an actual replacement character (not a lone surrogate).
-    /// 
+    ///
     /// This function decodes these markers back into proper WTF-8 byte sequences.
-    fn decode_lone_surrogates_to_wtf8_atom(&mut self, s: &'a str, has_lone_surrogates: bool) -> Wtf8Atom<'a> {
+    fn decode_lone_surrogates_to_wtf8_atom(
+        &mut self,
+        s: &'a str,
+        has_lone_surrogates: bool,
+    ) -> Wtf8Atom<'a> {
         if !has_lone_surrogates {
             // No lone surrogates, can convert directly
             return Wtf8Atom::from(s);
@@ -489,7 +493,7 @@ impl<'a, C: Config> ParserImpl<'a, C> {
         // Decode the lone surrogates
         let mut wtf8_buf = Wtf8Buf::new();
         let mut chars = s.chars();
-        
+
         while let Some(ch) = chars.next() {
             if ch == '\u{FFFD}' {
                 // Check if this is a lone surrogate marker
@@ -500,7 +504,7 @@ impl<'a, C: Config> ParserImpl<'a, C> {
                     }
                     chars_arr
                 };
-                
+
                 let hex_str = if hex_chars[3] == '\0' {
                     // Not enough characters
                     let partial: String = hex_chars.iter().take_while(|&&c| c != '\0').collect();
@@ -510,7 +514,7 @@ impl<'a, C: Config> ParserImpl<'a, C> {
                 } else {
                     hex_chars.iter().collect::<String>()
                 };
-                
+
                 if hex_str == "fffd" {
                     // Actual replacement character, not a surrogate marker
                     wtf8_buf.push_char('\u{FFFD}');
@@ -555,7 +559,7 @@ impl<'a, C: Config> ParserImpl<'a, C> {
         let value = self.cur_string();
         let lone_surrogates = self.cur_token().lone_surrogates();
         self.bump_any();
-        
+
         let wtf8_value = self.decode_lone_surrogates_to_wtf8_atom(value, lone_surrogates);
         self.ast.string_literal(span, wtf8_value, Some(raw))
     }
@@ -699,7 +703,8 @@ impl<'a, C: Config> ParserImpl<'a, C> {
             if cooked_atom.is_some() && raw.contains('\r') {
                 raw = self.ast.atom(&raw.cow_replace("\r\n", "\n").cow_replace('\r', "\n"));
             }
-            let cooked = cooked_atom.map(|atom| self.decode_lone_surrogates_to_wtf8_atom(atom, lone_surrogates));
+            let cooked = cooked_atom
+                .map(|atom| self.decode_lone_surrogates_to_wtf8_atom(atom, lone_surrogates));
             (cooked, lone_surrogates)
         } else {
             let wtf8_value = self.decode_lone_surrogates_to_wtf8_atom(raw.as_str(), false);
@@ -717,12 +722,7 @@ impl<'a, C: Config> ParserImpl<'a, C> {
         }
 
         let tail = matches!(cur_kind, Kind::TemplateTail | Kind::NoSubstitutionTemplate);
-        self.ast.template_element(
-            span,
-            TemplateElementValue { raw, cooked },
-            tail,
-            false,
-        )
+        self.ast.template_element(span, TemplateElementValue { raw, cooked }, tail, false)
     }
 
     /// Section 13.3 ImportCall or ImportMeta

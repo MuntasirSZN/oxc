@@ -425,13 +425,11 @@ impl<'a> MayHaveSideEffects<'a> for StaticMemberExpression<'a> {
 impl<'a> MayHaveSideEffects<'a> for ComputedMemberExpression<'a> {
     fn may_have_side_effects(&self, ctx: &impl MayHaveSideEffectsContext<'a>) -> bool {
         match &self.expression {
-            Expression::StringLiteral(s) => {
-                property_access_may_have_side_effects(
-                    &self.object,
-                    s.value.as_str().unwrap_or_default(),
-                    ctx,
-                )
-            }
+            Expression::StringLiteral(s) => property_access_may_have_side_effects(
+                &self.object,
+                s.value.as_str().unwrap_or_default(),
+                ctx,
+            ),
             Expression::TemplateLiteral(t) => t.single_quasi().is_some_and(|quasi| {
                 property_access_may_have_side_effects(
                     &self.object,

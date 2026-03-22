@@ -158,7 +158,8 @@ pub enum OpeningElementLayout {
 
 /// Returns `true` if this is an attribute with a string literal initializer that does not contain any new line characters.
 fn is_single_line_string_literal_attribute(attribute: &JSXAttributeItem) -> bool {
-    as_string_literal_attribute_value(attribute).is_some_and(|string| !string.value.as_wtf8().as_bytes().contains(&b'\n'))
+    as_string_literal_attribute_value(attribute)
+        .is_some_and(|string| !string.value.as_wtf8().as_bytes().contains(&b'\n'))
 }
 
 /// Returns `Some` if the initializer value of this attribute is a string literal.

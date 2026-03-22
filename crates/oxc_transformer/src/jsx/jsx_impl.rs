@@ -94,7 +94,6 @@ use oxc_allocator::{
 use oxc_ast::{AstBuilder, NONE, ast::*};
 use oxc_ecmascript::PropName;
 use oxc_span::{Atom, Ident, SPAN, Span};
-use oxc_wtf8::Wtf8Atom;
 use oxc_syntax::{
     identifier::{is_identifier_name, is_white_space_single_line},
     keyword::is_reserved_keyword,
@@ -104,6 +103,7 @@ use oxc_syntax::{
     xml_entities::XML_ENTITIES,
 };
 use oxc_traverse::{BoundIdentifier, Traverse};
+use oxc_wtf8::Wtf8Atom;
 
 use crate::{
     context::TraverseCtx,
@@ -980,14 +980,22 @@ impl<'a> JsxImpl<'a> {
             JSXAttributeName::Identifier(ident) => {
                 let name = ident.name;
                 if ident.name.contains('-') {
-                    PropertyKey::from(ctx.ast.expression_string_literal(ident.span, name.into(), None))
+                    PropertyKey::from(ctx.ast.expression_string_literal(
+                        ident.span,
+                        name.into(),
+                        None,
+                    ))
                 } else {
                     ctx.ast.property_key_static_identifier(ident.span, name)
                 }
             }
             JSXAttributeName::NamespacedName(namespaced) => {
                 let name = ctx.ast.atom(&namespaced.to_string());
-                PropertyKey::from(ctx.ast.expression_string_literal(namespaced.span, name.into(), None))
+                PropertyKey::from(ctx.ast.expression_string_literal(
+                    namespaced.span,
+                    name.into(),
+                    None,
+                ))
             }
         }
     }

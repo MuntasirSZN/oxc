@@ -89,7 +89,8 @@ impl<'a> PeepholeOptimizations {
         // Only check for computed property restrictions if this is actually a computed property
         if prop.computed
             && let PropertyKey::StringLiteral(str) = &prop.key
-            && property_key_parent.should_keep_as_computed_property(str.value.as_str().unwrap_or_default())
+            && property_key_parent
+                .should_keep_as_computed_property(str.value.as_str().unwrap_or_default())
         {
             return;
         }
@@ -104,7 +105,8 @@ impl<'a> PeepholeOptimizations {
         // Only check for computed property restrictions if this is actually a computed property
         if prop.computed
             && let PropertyKey::StringLiteral(str) = &prop.key
-            && property_key_parent.should_keep_as_computed_property(str.value.as_str().unwrap_or_default())
+            && property_key_parent
+                .should_keep_as_computed_property(str.value.as_str().unwrap_or_default())
         {
             return;
         }
@@ -119,7 +121,8 @@ impl<'a> PeepholeOptimizations {
         // Only check for computed property restrictions if this is actually a computed property
         if prop.computed
             && let PropertyKey::StringLiteral(str) = &prop.key
-            && property_key_parent.should_keep_as_computed_property(str.value.as_str().unwrap_or_default())
+            && property_key_parent
+                .should_keep_as_computed_property(str.value.as_str().unwrap_or_default())
         {
             return;
         }
@@ -1259,7 +1262,8 @@ impl<'a> PeepholeOptimizations {
     pub fn substitute_template_literal(expr: &mut Expression<'a>, ctx: &mut TraverseCtx<'a>) {
         let Expression::TemplateLiteral(t) = expr else { return };
         let Some(val) = t.to_js_string(ctx) else { return };
-        *expr = ctx.ast.expression_string_literal(t.span(), ctx.ast.atom_from_cow(&val).into(), None);
+        *expr =
+            ctx.ast.expression_string_literal(t.span(), ctx.ast.atom_from_cow(&val).into(), None);
         ctx.state.changed = true;
     }
 
@@ -1285,7 +1289,8 @@ impl<'a> PeepholeOptimizations {
                     ctx.state.changed = true;
                     return;
                 }
-                if let Some(value) = TraverseCtx::string_to_equivalent_number_value(value.unwrap_or_default())
+                if let Some(value) =
+                    TraverseCtx::string_to_equivalent_number_value(value.unwrap_or_default())
                     && value >= 0.0
                 {
                     *computed = false;

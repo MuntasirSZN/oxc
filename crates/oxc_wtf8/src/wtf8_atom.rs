@@ -298,10 +298,7 @@ impl oxc_estree::ESTree for Wtf8Atom<'_> {
 /// Lone surrogates (WTF-8 sequences `0xED 0xA0..=0xBF 0x80..=0xBF`) are output as
 /// `\uXXXX` JSON escape sequences. All other characters use standard JSON escaping.
 #[cfg(feature = "serialize")]
-fn write_wtf8_as_json_str(
-    bytes: &[u8],
-    buf: &mut oxc_data_structures::code_buffer::CodeBuffer,
-) {
+fn write_wtf8_as_json_str(bytes: &[u8], buf: &mut oxc_data_structures::code_buffer::CodeBuffer) {
     let mut i = 0;
     let mut chunk_start = 0;
 

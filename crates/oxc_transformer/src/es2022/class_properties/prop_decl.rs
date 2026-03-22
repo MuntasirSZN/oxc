@@ -276,7 +276,9 @@ impl<'a> ClassProperties<'a> {
                 }
                 ctx.ast.member_expression_static(SPAN, assignee, ident.as_ref().clone(), false)
             }
-            PropertyKey::StringLiteral(str_lit) if str_lit.value.as_str().is_some_and(|s| needs_define(s)) => {
+            PropertyKey::StringLiteral(str_lit)
+                if str_lit.value.as_str().is_some_and(|s| needs_define(s)) =>
+            {
                 return self
                     .create_init_assignment_not_loose(prop, value, assignee, is_static, ctx);
             }

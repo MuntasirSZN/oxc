@@ -224,7 +224,10 @@ impl<'a> TSModuleDeclarationName<'a> {
     pub fn name(&self) -> Atom<'a> {
         match self {
             Self::Identifier(ident) => ident.name.into(),
-            Self::StringLiteral(lit) => lit.value.try_into_atom().expect("String literal should not contain lone surrogates in module name context"),
+            Self::StringLiteral(lit) => lit
+                .value
+                .try_into_atom()
+                .expect("String literal should not contain lone surrogates in module name context"),
         }
     }
 }
