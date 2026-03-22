@@ -105,10 +105,20 @@ impl Rule for PreferQuerySelector {
             }
 
             let literal_value = match argument_expr {
-                Expression::StringLiteral(literal) => Some(literal.value.trim()),
+                Expression::StringLiteral(literal) => {
+                    let value = literal.value.to_str_lossy();
+                    Some(value.trim().to_owned())
+                }
                 Expression::TemplateLiteral(literal) => {
                     if literal.expressions.is_empty() {
-                        literal.quasis.first().unwrap().value.cooked.as_deref().map(str::trim)
+                        literal
+                            .quasis
+                            .first()
+                            .unwrap()
+                            .value
+                            .cooked
+                            .as_ref()
+                            .map(|v| v.to_str_lossy().trim().to_owned())
                     } else {
                         None
                     }

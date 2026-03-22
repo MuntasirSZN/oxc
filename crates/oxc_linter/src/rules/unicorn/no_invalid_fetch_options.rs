@@ -204,7 +204,10 @@ fn is_invalid_fetch_options<'a>(
                                                     .to_str_lossy()
                                                     .cow_to_ascii_uppercase()
                                                     == "GET"
-                                                    || str_lit.value.cow_to_ascii_uppercase()
+                                                    || str_lit
+                                                        .value
+                                                        .to_str_lossy()
+                                                        .cow_to_ascii_uppercase()
                                                         == "HEAD";
                                             }
                                         }
@@ -216,7 +219,8 @@ fn is_invalid_fetch_options<'a>(
                                 TSType::TSLiteralType(literal_type) => {
                                     let TSLiteralType { literal, .. } = &**literal_type;
                                     if let TSLiteral::StringLiteral(str_lit) = literal {
-                                        method_name = str_lit.value.cow_to_ascii_uppercase();
+                                        method_name =
+                                            str_lit.value.to_str_lossy().cow_to_ascii_uppercase();
                                     }
                                 }
                                 _ => {
