@@ -340,7 +340,7 @@ impl LabelHasAssociatedControl {
                                     && attribute.value.as_ref().is_some_and(|attribute_value| {
                                         match attribute_value {
                                             JSXAttributeValue::StringLiteral(literal) => {
-                                                !literal.value.as_str().trim().is_empty()
+                                                !literal.value.to_str_lossy().trim().is_empty()
                                             }
                                             _ => true,
                                         }
