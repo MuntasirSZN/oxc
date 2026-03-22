@@ -141,7 +141,7 @@ fn is_invalid_fetch_options<'a>(
                                         if let Some(Expression::StringLiteral(str_lit)) =
                                             &m.initializer
                                         {
-                                            Some(str_lit.value.to_compact_str())
+                                            Some(str_lit.value.to_str_lossy().into())
                                         } else {
                                             None
                                         }
@@ -159,7 +159,7 @@ fn is_invalid_fetch_options<'a>(
                     }
                 }
                 Expression::StringLiteral(value_ident) => {
-                    method_name = value_ident.value.cow_to_ascii_uppercase();
+                    method_name = value_ident.value.to_str_lossy().cow_to_ascii_uppercase();
                 }
                 Expression::TemplateLiteral(template_lit) => {
                     method_name = extract_method_name_from_template_literal(template_lit);
@@ -178,7 +178,7 @@ fn is_invalid_fetch_options<'a>(
                     match decl.kind() {
                         AstKind::VariableDeclarator(declarator) => match &declarator.init {
                             Some(Expression::StringLiteral(str_lit)) => {
-                                method_name = str_lit.value.cow_to_ascii_uppercase();
+                                method_name = str_lit.value.to_str_lossy().cow_to_ascii_uppercase();
                             }
                             Some(Expression::TemplateLiteral(template_lit)) => {
                                 method_name =
@@ -199,7 +199,10 @@ fn is_invalid_fetch_options<'a>(
                                         if let TSType::TSLiteralType(ty) = ty {
                                             let TSLiteralType { literal, .. } = &**ty;
                                             if let TSLiteral::StringLiteral(str_lit) = literal {
-                                                return str_lit.value.cow_to_ascii_uppercase()
+                                                return str_lit
+                                                    .value
+                                                    .to_str_lossy()
+                                                    .cow_to_ascii_uppercase()
                                                     == "GET"
                                                     || str_lit.value.cow_to_ascii_uppercase()
                                                         == "HEAD";
