@@ -1866,7 +1866,6 @@ dependencies = [
  "oxc_regular_expression",
  "oxc_span",
  "oxc_syntax",
- "oxc_wtf8",
 ]
 
 [[package]]
@@ -2086,7 +2085,6 @@ dependencies = [
  "oxc_str",
  "oxc_syntax",
  "oxc_traverse",
- "oxc_wtf8",
  "pico-args",
  "rustc-hash",
 ]

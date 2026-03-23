@@ -26,7 +26,6 @@ oxc_ast = { workspace = true }
 oxc_regular_expression = { workspace = true }
 oxc_span = { workspace = true }
 oxc_syntax = { workspace = true, features = ["to_js_string"] }
-oxc_wtf8 = { workspace = true }
 
 cow-utils = { workspace = true }
 num-bigint = { workspace = true }

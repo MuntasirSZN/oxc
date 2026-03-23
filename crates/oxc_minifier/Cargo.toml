@@ -35,7 +35,6 @@ oxc_span = { workspace = true }
 oxc_str = { workspace = true }
 oxc_syntax = { workspace = true }
 oxc_traverse = { workspace = true }
-oxc_wtf8 = { workspace = true }
 
 cow-utils = { workspace = true }
 itoa = { workspace = true }
