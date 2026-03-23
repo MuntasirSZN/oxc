@@ -68,7 +68,7 @@ pub fn try_fold_known_global_methods<'a>(
         Expression::ComputedMemberExpression(member) if !member.optional => {
             match &member.expression {
                 Expression::StringLiteral(s) => {
-                    let Some(name) = s.value.as_str() else { return None };
+                    let name = s.value.as_str()?;
                     (name, &member.object)
                 }
                 _ => return None,
@@ -112,7 +112,7 @@ fn try_fold_string_casing<'a>(
 
     let value = match object {
         Expression::StringLiteral(s) => {
-            let Some(s_str) = s.value.as_str() else { return None };
+            let s_str = s.value.as_str()?;
             Cow::Borrowed(s_str)
         }
         Expression::Identifier(ident) => ident

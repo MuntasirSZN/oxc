@@ -71,7 +71,7 @@ impl<'a> IsolatedDeclarations<'a> {
         match key {
             // ["string"] -> string
             PropertyKey::StringLiteral(literal)
-                if literal.value.as_str().is_some_and(|s| is_identifier_name(s)) =>
+                if literal.value.as_str().is_some_and(is_identifier_name) =>
             {
                 self.ast
                     .property_key_static_identifier(literal.span, literal.value.as_str().unwrap())

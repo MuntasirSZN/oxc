@@ -385,9 +385,9 @@ pub fn is_same_member_expression(
             // ex) x[/regex/] === x[`/regex/`]
             (Expression::TemplateLiteral(template_lit), Expression::RegExpLiteral(regex_lit))
             | (Expression::RegExpLiteral(regex_lit), Expression::TemplateLiteral(template_lit)) => {
-                if !template_lit
+                if template_lit
                     .single_quasi()
-                    .is_some_and(|val| val.as_str() == regex_lit.raw.as_ref().map(AsRef::as_ref))
+                    .is_none_or(|val| val.as_str() != regex_lit.raw.as_ref().map(AsRef::as_ref))
                 {
                     return false;
                 }

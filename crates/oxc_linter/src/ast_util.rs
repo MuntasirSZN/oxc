@@ -306,9 +306,7 @@ pub fn extract_regex_flags<'a>(
         Argument::TemplateLiteral(template) => template.single_quasi()?,
         _ => return None,
     };
-    let Some(flag_arg) = flag_arg.as_str() else {
-        return None;
-    };
+    let flag_arg = flag_arg.as_str()?;
     let mut flags = RegExpFlags::empty();
     for ch in flag_arg.chars() {
         let flag = RegExpFlags::try_from(ch).ok()?;

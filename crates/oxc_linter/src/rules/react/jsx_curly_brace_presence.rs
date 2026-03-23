@@ -504,7 +504,7 @@ impl JsxCurlyBracePresence {
             Expression::TemplateLiteral(template) => {
                 if allowed.is_never() && template.is_no_substitution_template() {
                     let string = template.single_quasi().unwrap();
-                    let string = string.to_str_lossy();
+                    let string = string.to_str_lossy().into_owned();
                     if !parent_is_attribute && contains_quote_characters(string.as_ref())
                         || is_allowed_string_like_in_container(
                             ctx,
@@ -530,7 +530,7 @@ impl JsxCurlyBracePresence {
 
 fn is_allowed_string_like_in_container<'a>(
     ctx: &LintContext<'a>,
-    s: &'a str,
+    s: &str,
     container: &JSXExpressionContainer<'a>,
     node_id: NodeId,
     is_prop: bool,

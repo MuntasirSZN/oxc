@@ -1002,7 +1002,7 @@ mod tests {
     fn as_str_with_surrogate() {
         let bytes = [0xED, 0xA0, 0x80]; // U+D800
         // SAFETY: bytes are a valid lone-surrogate WTF-8 sequence (U+D800).
-        let s = unsafe { Wtf8::from_bytes_unchecked(&bytes) };
+        let _s = unsafe { Wtf8::from_bytes_unchecked(&bytes) };
     }
 
     #[test]

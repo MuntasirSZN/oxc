@@ -1140,7 +1140,7 @@ fn insert_space_if_required(output: &mut Vec<u8>, is_first_output: bool) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use oxc_allocator::Allocator;
+    use oxc_allocator::{Allocator, IntoIn};
     use oxc_ast::{AstBuilder, ast::TemplateElementValue};
     use oxc_span::SPAN;
 
@@ -1152,7 +1152,10 @@ mod tests {
             SPAN,
             ast.vec1(ast.template_element(
                 SPAN,
-                TemplateElementValue { raw: ast.atom(input), cooked: Some(ast.atom(input)) },
+                TemplateElementValue {
+                    raw: ast.atom(input),
+                    cooked: Some(input.into_in(&allocator)),
+                },
                 true,
                 false,
             )),

@@ -34,10 +34,11 @@ pub fn as_endpoint_registration<'a, 'n>(
         Expression::StringLiteral(path) => {
             path.value.try_into_atom().map(|atom| (Some(atom), &call.arguments.as_slice()[1..]))
         }
-        Expression::TemplateLiteral(template) => template
-            .single_quasi()
-            .and_then(|quasi| quasi.try_into_atom())
-            .map(|atom| (Some(atom), &call.arguments.as_slice()[1..])),
+        Expression::TemplateLiteral(template) => {
+            #[expect(clippy::redundant_closure_for_method_calls)]
+            let atom = template.single_quasi().and_then(|quasi| quasi.try_into_atom());
+            atom.map(|atom| (Some(atom), &call.arguments.as_slice()[1..]))
+        }
         _ => Some((None, call.arguments.as_slice())),
     }
 }

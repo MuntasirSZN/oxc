@@ -146,7 +146,7 @@ impl Rule for PreferQuerySelector {
                             let inner_quote = if quotes_symbol == '\'' { '"' } else { '\'' };
                             format!("[name={inner_quote}{literal_value}{inner_quote}]")
                         }
-                        _ => literal_value.to_string(),
+                        _ => literal_value.clone(),
                     };
                     let span = property_span.merge(argument_expr.span());
                     fixer.replace(

@@ -481,7 +481,7 @@ impl<'a, C: Config> ParserImpl<'a, C> {
     ///
     /// This function decodes these markers back into proper WTF-8 byte sequences.
     fn decode_lone_surrogates_to_wtf8_atom(
-        &mut self,
+        &self,
         s: &'a str,
         has_lone_surrogates: bool,
     ) -> Wtf8Atom<'a> {
