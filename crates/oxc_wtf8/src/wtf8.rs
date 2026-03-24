@@ -166,7 +166,7 @@ impl Wtf8 {
         }
 
         match self.next_lone_surrogate(0) {
-            None => unreachable!("invalid WTF-8 invariant: non-UTF8 bytes without lone surrogate"),
+            None => Cow::Owned(String::from_utf8_lossy(&self.bytes).into_owned()),
             Some((first_surrogate, _)) => {
                 let mut result = String::with_capacity(self.bytes.len());
                 // SAFETY: bytes up to the first surrogate are valid UTF-8.
